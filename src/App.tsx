@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./App.css"
 import { Layout, Menu, theme } from "antd";
 import Footer from "./components/Footer";
 import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
@@ -17,6 +18,10 @@ const App: React.FC = () => {
   } = theme.useToken();
 
   const items: MenuProps["items"] = [
+    // {
+    //   label: <img src="/favicon.ico" alt="icon" />,
+    //   key: "icon",
+    // },
     {
       label: (
         <Link to="/diemDanhKetThucLam">Điểm danh bắt đầu/kết thúc làm</Link>
@@ -61,9 +66,9 @@ const App: React.FC = () => {
     <div className="App">
       <Router>
         <Layout>
-          <Header className="header">
-            <div className="logo" />
+          <Header>
             <Menu
+             theme="dark"
               onClick={onClick}
               selectedKeys={[current]}
               mode="horizontal"
