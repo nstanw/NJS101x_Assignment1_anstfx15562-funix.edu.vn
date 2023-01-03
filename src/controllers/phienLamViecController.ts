@@ -1,20 +1,8 @@
 import phienLamViecModel from "../Models/phienLamViecModel";
 import { getHouseBetweenTwoDate } from "../util/getHouseBetweenTwoDate";
 
-interface IPhienLamViec {
-  name: string;
-  batDau: Date;
-  ketThuc: Date;
-  active: boolean;
-  noiLam: string;
-  thoiGianLam: Number
-}
-
-interface INghiPhep {
-  annualLeave: number;
-}
-
 export default new (class PhienLamViec {
+  //POST thêm phiên làm việc
   async addPhienLamViec(req, res, next) {
     // input noiLam: string
 
@@ -48,7 +36,6 @@ export default new (class PhienLamViec {
       .status(400)
       .json({ err: "Đang trong phiên làm việc không thể điểm danh" });
   }
-
   // PATCH Kết thúc phiên làm việc
   async ketThucPhienLamViec(req, res, next) {
 
@@ -75,23 +62,31 @@ export default new (class PhienLamViec {
         thoiGianLam: thoiGianLam,
         active: false,
       }
-      let phienKetThuc = await phienLamViecModel.findOneAndUpdate(
+
+      //update thời gian kết thúc và tính thời gian đã làm
+      await phienLamViecModel.findOneAndUpdate(
         { active: true },
         setThoiGianKetThuc,
         { returnDocument: "after" }
       );
 
-      console.log("thoiGianLam", thoiGianLam);
-      console.log("phienKetThuc", phienKetThuc);
+      let listPhienLamViecHomNay = await phienLamViecModel.find({});
+      console.log(listPhienLamViecHomNay);
 
-      // let listPhienLamViecHomNay = await phienLamViecModel.find({});
-      // console.log(listPhienLamViecHomNay);
-      // tinh thời gian làm mỗi phiên
-
-      // tra ve
-      res.status(200).json(phienKetThuc);
+      res.status(200).json(listPhienLamViecHomNay);
     } catch (error) {
       console.log(error);
     }
   }
+  //POST đăng kí nghỉ phép
+  /**
+   * input: 
+   * chọn ngày nghỉ : Date[],
+   * lý do: string
+   * chọn số giờ sẽ nghỉ: <8/ ngày, < số ngày phép còn lại
+   * 
+   * output:
+   * số ngày phép còn lại
+   * 
+   */
 })();

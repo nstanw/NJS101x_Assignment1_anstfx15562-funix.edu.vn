@@ -1,71 +1,51 @@
-// import nhanVienModel = require("../models/nhanVienModel");
-import { mutipleMongooseToObject, mongooseToObject, } from "../util/mongoose";
+import nhanVienModel from "../Models/nhanVienModel";
 
-class NhanVien {
+export default new (class NhanVienController {
+  // thêm nhân viên
+  //POST
+  async addNhanVien(req, res) {
+    let newNhanVien = new nhanVienModel({
+      name: req.body.name,
+      doB: Date.now(),
+      salaryScale: req.body.salaryScale,
+      startDate: req.body.startDate,
+      department: req.body.department,
+      annualLeave: req.body.annualLeave,
+      image: req.body.image
+    })
 
-  //[post] /users.checkin
-  checkin(req, res, next) {
-    const formData = req.body;
-    formData.workStatus = true;
-    console.log(formData);
-    const checkin = new user(formData);
-    checkin
-      .save()
-      .then(() => getCheckin())
-      .catch(next);
-
-    const getCheckin = () => {
-      user.find({ category: "Database" })
-        .then((user) => {
-          console.log("Database Courses:");
-          console.log(user);
-          res.render('checkin/checkInInfor', {
-            user: mutipleMongooseToObject(user),
-          });
-        })
-        .catch(next);
+    try {
+      let themNhanVien = await newNhanVien.save();
+      return res.status(201).json(themNhanVien);
+    } catch (err) {
+      return res.status(400).json(err);
     }
-
   }
 
-
-
-
-  getUsers(req, res, next) {
-    user
-      .find({})
-      .then((user) =>
-        res.render("home", {
-          user: mutipleMongooseToObject(user),
-        })
-      )
-      .catch(next);
+  //GET thông tin nhân viên
+  async getNhanVien(req, res) {
+    try {
+      let infoNhanVien = await nhanVienModel.findOne({ id: "63b44ee04dba075be5a46f8c" })
+      console.log(infoNhanVien);
+      return res.status(200).json(infoNhanVien);
+    } catch (error) {
+      return res.status(400).json(error);
+    }
   }
 
-  getSlug(req, res, next) {
-    //sau params neu :name thi params.name
-    //  user.find({}).then(user => res.send('slug_ ' + req.params.slug)).catch(next);
-
-    // return document to mongoose
-    // user.findOne({slug: req.params.slug}).then(user => res.render('detailMongo',{
-    //   user: mongooseToObject(user),
-    // })).catch(next);
-
-    user
-      .findOne({ slug: "nha-rieng" })
-      .then((user) =>
-        res.send({
-          user: mongooseToObject(user),
-        })
-      )
-      .catch(next);
+  //PATCH image link
+  async editLinkImage(req, res) {
+    try {
+      let infoNhanVien = await nhanVienModel.findOneAndUpdate(
+        { id: "63b44ee04dba075be5a46f8c" },
+        { image: req.body.image },
+        { returnDocument: "after" })
+      console.log(infoNhanVien);
+      return res.status(200).json(infoNhanVien);
+    } catch (error) {
+      return res.status(400).json(error);
+    }
   }
 
-  check(req, res, next) {
-    res.render("home");
-  }
+})();
 
-
-}
-const nhanVienController = new NhanVien();
-export = nhanVienController;

@@ -1,6 +1,7 @@
 import * as express from "express";
 // import * as bodyParser from "body-parser";
-var Route = require("./routes/phienLamViecRouter");
+const  phienLamViecRouter = require("./routes/phienLamViecRouter");
+const  nhanVienRouter = require("./routes/nhanVienRouter");
 const mongoose = require("mongoose");
 
 class App {
@@ -27,7 +28,8 @@ class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded());
     // Router
-    Route(this.app);
+    phienLamViecRouter(this.app);
+    nhanVienRouter(this.app);
   }
 }
 

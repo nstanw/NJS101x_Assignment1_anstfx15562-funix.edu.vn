@@ -1,6 +1,5 @@
 import phienLamViecController from "../Controllers/phienLamViecController";
 
-
 function Router(app) {
   app.get("/", (req, res) => {
     res.json({ ok: true });
