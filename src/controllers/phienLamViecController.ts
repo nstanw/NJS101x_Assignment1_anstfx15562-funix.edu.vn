@@ -1,6 +1,17 @@
 import phienLamViecModel from "../Models/phienLamViecModel";
 import { getHouseBetweenTwoDate } from "../util/getHouseBetweenTwoDate";
 
+interface IDetailPhienLamViec {
+  ngay: string;
+  noiLam: string;
+  ngayDangKiPhep: [];
+  gioBatDau: Date;
+  gioKetThuc?: Date | null;
+  tongGioLam: Number | "chưa kết thúc";
+  tongGioLamTrongNgay?: Number;
+  luong?: Number;
+}
+
 export default new (class PhienLamViec {
   //POST thêm phiên làm việc
   async addPhienLamViec(req, res, next) {
@@ -89,4 +100,27 @@ export default new (class PhienLamViec {
    * số ngày phép còn lại
    * 
    */
+  //GET danh sach gio đã làm ở công ty
+  async traCuuThongTinGioLamCongTy(req, res) {
+    try {
+
+      let listGioLamCongTy = await phienLamViecModel.find({ noiLam: "Công Ty" });
+
+      let result = listGioLamCongTy.map((phien) => ({
+        ngay: new Date().toLocaleString().split(',')[0],
+        noiLam: phien.noiLam,
+        ngayDangKiPhep: [],
+        gioBatDau: phien.batDau,
+        gioKetThuc: phien.ketThuc,
+        tongGioLam: phien.thoiGianLam,
+      }))
+      console.log(result);
+      return res.json(result);
+    } catch (error) {
+
+      return res.json(new Error(error));
+
+    }
+  }
+
 })();
