@@ -1,4 +1,4 @@
-import nhanVienModel = require("../models/nhanVienModel");
+// import nhanVienModel = require("../models/nhanVienModel");
 import { mutipleMongooseToObject, mongooseToObject, } from "../util/mongoose";
 
 class NhanVien {

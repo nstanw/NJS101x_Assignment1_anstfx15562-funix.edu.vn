@@ -1,5 +1,5 @@
-import * as user from "../models/nhanVienModel";
-const {mutipleMongooseToObject} = require('../../src/util/mongoose')
+// import * as user from "../models/nhanVienModel";
+// const {mutipleMongooseToObject} = require('../../src/util/mongoose')
 class Index {
   //[GET] /:slug/
   show(req, res, next) {
