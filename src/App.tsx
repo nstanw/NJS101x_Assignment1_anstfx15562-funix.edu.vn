@@ -7,6 +7,8 @@ import DiemDanh from "./components/diemDanh";
 import type { MenuProps } from "antd";
 import NghiPhep from "./components/nghiPhep";
 import EditThongTinCaNhan from "./components/editThongTinCaNhan";
+import TraCuuGioLam from "./components/traCuuGioLam";
+import CovidCaNhan from "./components/covidCaNhan";
 const { Header, Content } = Layout;
 
 const App: React.FC = () => {
@@ -75,6 +77,8 @@ const App: React.FC = () => {
               <Route path="/diemDanh" element={<DiemDanh />}></Route>
               <Route path="/nghiPhep" element={<NghiPhep />}></Route>
               <Route path="/editThongTinCaNhan" element={<EditThongTinCaNhan />}></Route>
+              <Route path="/traCuuThongTinGioLam" element={<TraCuuGioLam />}></Route>
+              <Route path="/thongTinCovidCaNhan" element={<CovidCaNhan />}></Route>
             </Routes>
           </Content>
 
