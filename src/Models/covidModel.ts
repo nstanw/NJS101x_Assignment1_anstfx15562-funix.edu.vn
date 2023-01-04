@@ -3,13 +3,13 @@ const { Schema } = mongoose;
 
 const covidSchema = new Schema({
     name: String,
-    ngayDangKiThanNhiet: Date,
-    gioDangKiThanNhiet: Date,
+    ngayGioDangKiThanNhiet: String,
     nhietDo: Number,
     ngayTiemVaccine1: Date,
     tenVaccine1: String,
     ngayTiemVaccine2: Date,
     tenVaccine2: String,
+    ngayKhaiBaoCovid: Date,
     duongTinh: Boolean,
 });
 

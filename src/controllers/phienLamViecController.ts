@@ -1,3 +1,4 @@
+import { isNonNullChain } from "typescript";
 import phienLamViecModel from "../Models/phienLamViecModel";
 import { getHouseBetweenTwoDate } from "../util/getHouseBetweenTwoDate";
 
@@ -10,6 +11,17 @@ interface IPhienLamViec {
   thoiGianLam?: Number | null;
 }
 type PhienLamViecDto = IPhienLamViec[];
+
+interface ITraCuuGioLamViec {
+  name: String | null;
+  noiLam: String | null;
+  annualLeave?: Number | null;
+  batDau: Date | null;
+  ketThuc: Date | null;
+  thoiGianLam: Number | null;
+  active: Boolean;
+}
+type ITraCuuGioLamViecDto = ITraCuuGioLamViec[];
 
 export default new (class PhienLamViec {
   //GET active
@@ -138,18 +150,20 @@ export default new (class PhienLamViec {
         noiLam: "Công Ty",
       });
 
-      let result = listGioLamCongTy.map((phien) => ({
-        ngay: new Date().toLocaleString().split(",")[0],
+      let result: ITraCuuGioLamViecDto = listGioLamCongTy.map((phien) => ({
+        ngay: phien.batDau,
+        name: phien.name,
         noiLam: phien.noiLam,
-        ngayDangKiPhep: [],
-        gioBatDau: phien.batDau,
-        gioKetThuc: phien.ketThuc,
-        tongGioLam: phien.thoiGianLam,
+        annualLeave: null,
+        batDau: phien.batDau,
+        ketThuc: phien.ketThuc,
+        thoiGianLam: phien.thoiGianLam,
+        active: phien.active,
       }));
       console.log(result);
       return res.json(result);
     } catch (error) {
-      return res.json(new Error(error));
+      return res.json(error);
     }
   }
 })();

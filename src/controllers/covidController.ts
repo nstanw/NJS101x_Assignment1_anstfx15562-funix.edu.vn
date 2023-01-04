@@ -3,13 +3,13 @@ import covidModel from "../Models/covidModel";
 
 export default new class CovidController {
 
+    // patch
     async dangKiThongTinThanNhiet(req, res, next) {
         try {
             let dangKiThongTinThanNhiet = await covidModel.findOneAndUpdate(
-                {name: "admin"},
+                { name: "admin" },
                 {
-                    ngayDangKiThanNhiet: req.body.ngayDangKiThanNhiet,
-                    gioDangKiThanNhiet: req.body.gioDangKiThanNhiet,
+                    ngayGioDangKiThanNhiet: req.body.ngayGioDangKiThanNhiet,
                     nhietDo: req.body.nhietDo,
                 },
                 { returnDocument: "after", upsert: true })
@@ -19,11 +19,11 @@ export default new class CovidController {
             return res.status(400).json(error);
         }
     }
-
+    // patch
     async dangKiThongTinVaccin(req, res, next) {
         try {
             let dangKiThongTinVaccin = await covidModel.findOneAndUpdate(
-                {name: "admin"},
+                { name: "admin" },
                 {
                     ngayTiemVaccine1: req.body.ngayTiemVaccine1,
                     tenVaccine1: req.body.tenVaccine1,
@@ -38,12 +38,15 @@ export default new class CovidController {
         }
 
     }
+
+    // patch
     async dangKiDuongTinhCovid(req, res, next) {
         try {
             let dangKiDuongTinhCovid = await covidModel.findOneAndUpdate(
-                {name: "admin"},
+                { name: "admin" },
                 {
                     duongTinh: req.body.duongTinh,
+                    ngayKhaiBaoCovid: req.body.ngayKhaiBaoCovid
                 },
                 { returnDocument: "after", upsert: true })
             console.log(dangKiDuongTinhCovid);
