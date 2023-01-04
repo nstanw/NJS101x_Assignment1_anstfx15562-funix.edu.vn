@@ -41,9 +41,9 @@ export default new (class NhanVienController {
         { image: req.body.image },
         { returnDocument: "after" })
       console.log(infoNhanVien);
-      return res.status(200).json(infoNhanVien);
+      return res.json(infoNhanVien);
     } catch (error) {
-      return res.status(400).json(error);
+      return res.json(error);
     }
   }
 

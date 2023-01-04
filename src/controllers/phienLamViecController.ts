@@ -1,18 +1,48 @@
 import phienLamViecModel from "../Models/phienLamViecModel";
 import { getHouseBetweenTwoDate } from "../util/getHouseBetweenTwoDate";
 
-interface IDetailPhienLamViec {
-  ngay: string;
-  noiLam: string;
-  ngayDangKiPhep: [];
-  gioBatDau: Date;
-  gioKetThuc?: Date | null;
-  tongGioLam: Number | "chưa kết thúc";
-  tongGioLamTrongNgay?: Number;
-  luong?: Number;
+interface IPhienLamViec {
+  name: String | null;
+  noiLam: String | null;
+  active: Boolean;
+  batDau: Date | null;
+  ketThuc?: Date | null;
+  thoiGianLam?: Number | null;
 }
+type PhienLamViecDto = IPhienLamViec[];
 
 export default new (class PhienLamViec {
+  //GET active
+  async getActive(req, res) {
+
+    let checkActive = await phienLamViecModel.findOne({ active: true });
+    if (checkActive === null) {
+      let result: PhienLamViecDto = [
+        {
+          name: null,
+          noiLam: null,
+          active: false,
+          batDau: null,
+          ketThuc: null,
+          thoiGianLam: null,
+        },
+      ];
+      return res.json(result);
+    }
+
+    let result: PhienLamViecDto = [
+      {
+        name: checkActive.name,
+        noiLam: checkActive.noiLam,
+        active: true,
+        batDau: new Date(checkActive.batDau),
+        ketThuc: null,
+        thoiGianLam: null,
+      },
+    ];
+    return res.send(result);
+  }
+
   //POST thêm phiên làm việc
   async addPhienLamViec(req, res, next) {
     // input noiLam: string
@@ -37,8 +67,7 @@ export default new (class PhienLamViec {
       });
       try {
         let savePhien = await newPhien.save();
-        return res.status(200).json(savePhien)
-
+        return res.status(200).send([savePhien]);
       } catch (error) {
         return console.log(error);
       }
@@ -49,8 +78,7 @@ export default new (class PhienLamViec {
   }
   // PATCH Kết thúc phiên làm việc
   async ketThucPhienLamViec(req, res, next) {
-
-    // kiểm tra trong list phiên có phiên nào không. nếu trống thông báo lỗi 
+    // kiểm tra trong list phiên có phiên nào không. nếu trống thông báo lỗi
     let dataBase = (await phienLamViecModel.find({})) as [];
     if (dataBase.length === 0) {
       return res
@@ -60,19 +88,22 @@ export default new (class PhienLamViec {
     //kiem tra người dùng đang trong phiên không
     let phienActive = await phienLamViecModel.findOne({ active: true });
     if (phienActive === null) {
-      return res.status(400).json({
+      return res.json({
         error:
           "Hiện tại chưa có phiên làm việc nào đang diễn ra. Không thể kết thúc",
       });
     }
     //thay dổi trạng thái
     try {
-      let thoiGianLam = getHouseBetweenTwoDate(Date.now(), phienActive.batDau.getTime())
+      let thoiGianLam = getHouseBetweenTwoDate(
+        Date.now(),
+        phienActive.batDau.getTime()
+      );
       let setThoiGianKetThuc = {
         ketThuc: new Date(Date.now()),
         thoiGianLam: thoiGianLam,
         active: false,
-      }
+      };
 
       //update thời gian kết thúc và tính thời gian đã làm
       await phienLamViecModel.findOneAndUpdate(
@@ -91,36 +122,34 @@ export default new (class PhienLamViec {
   }
   //POST đăng kí nghỉ phép
   /**
-   * input: 
+   * input:
    * chọn ngày nghỉ : Date[],
    * lý do: string
    * chọn số giờ sẽ nghỉ: <8/ ngày, < số ngày phép còn lại
-   * 
+   *
    * output:
    * số ngày phép còn lại
-   * 
+   *
    */
   //GET danh sach gio đã làm ở công ty
   async traCuuThongTinGioLamCongTy(req, res) {
     try {
-
-      let listGioLamCongTy = await phienLamViecModel.find({ noiLam: "Công Ty" });
+      let listGioLamCongTy = await phienLamViecModel.find({
+        noiLam: "Công Ty",
+      });
 
       let result = listGioLamCongTy.map((phien) => ({
-        ngay: new Date().toLocaleString().split(',')[0],
+        ngay: new Date().toLocaleString().split(",")[0],
         noiLam: phien.noiLam,
         ngayDangKiPhep: [],
         gioBatDau: phien.batDau,
         gioKetThuc: phien.ketThuc,
         tongGioLam: phien.thoiGianLam,
-      }))
+      }));
       console.log(result);
       return res.json(result);
     } catch (error) {
-
       return res.json(new Error(error));
-
     }
   }
-
 })();

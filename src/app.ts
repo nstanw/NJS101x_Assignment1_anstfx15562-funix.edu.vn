@@ -1,8 +1,9 @@
 import * as express from "express";
-// import * as bodyParser from "body-parser";
+import * as cors from "cors";
 const  phienLamViecRouter = require("./routes/phienLamViecRouter");
 const  nhanVienRouter = require("./routes/nhanVienRouter");
 const mongoose = require("mongoose");
+
 
 class App {
   public app: express.Application;
@@ -27,6 +28,10 @@ class App {
     // Giúp chúng ta tiếp nhận dữ liệu từ body của request
     this.app.use(express.json());
     this.app.use(express.urlencoded());
+
+    // mở cros
+    this.app.use(cors());
+    
     // Router
     phienLamViecRouter(this.app);
     nhanVienRouter(this.app);

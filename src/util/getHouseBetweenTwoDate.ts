@@ -7,5 +7,5 @@ export const getHouseBetweenTwoDate = (
   );
   const diffInHours = diffInMilliseconds / 1000 / 60 / 60;
 
-  return Math.round(diffInHours * 100) / 100;
+  return Math.round(diffInHours * 10) / 10;
 };
