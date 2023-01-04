@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import "./App.css"
+import "./App.css";
 import { Layout, Menu, theme } from "antd";
 import Footer from "./components/Footer";
 import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
 import DiemDanh from "./components/diemDanh";
 import type { MenuProps } from "antd";
+import NghiPhep from "./components/nghiPhep";
+import EditThongTinCaNhan from "./components/editThongTinCaNhan";
 const { Header, Content } = Layout;
 
 const App: React.FC = () => {
@@ -24,28 +26,13 @@ const App: React.FC = () => {
     // },
     {
       label: (
-        <Link to="/diemDanhKetThucLam">Điểm danh bắt đầu/kết thúc làm</Link>
+        <Link to="/diemDanh">Điểm danh bắt đầu/kết thúc làm</Link>
       ),
-      key: "diemDanhKetThucLam" || "diemDanh" || "ketThucLam" || "nghiPhep",
-      children: [
-        {
-          type: "group",
-          children: [
-            {
-              label: <Link to="/diemDanh">Điểm danh</Link>,
-              key: "diemDanh",
-            },
-            {
-              label: <Link to="/ketThucLam">Kết thúc làm</Link>,
-              key: "ketThucLam",
-            },
-            {
-              label: <Link to="/nghiPhep">Nghỉ phép</Link>,
-              key: "nghiPhep",
-            },
-          ],
-        },
-      ],
+      key: "diemDanh",
+    },
+    {
+      label: <Link to="/nghiPhep">Nghỉ phép</Link>,
+      key: "nghiPhep",
     },
     {
       label: <Link to="/editThongTinCaNhan">Xem/sửa thông tin cá nhân</Link>,
@@ -68,7 +55,7 @@ const App: React.FC = () => {
         <Layout>
           <Header>
             <Menu
-             theme="dark"
+              theme="dark"
               onClick={onClick}
               selectedKeys={[current]}
               mode="horizontal"
@@ -86,6 +73,8 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<DiemDanh />}></Route>
               <Route path="/diemDanh" element={<DiemDanh />}></Route>
+              <Route path="/nghiPhep" element={<NghiPhep />}></Route>
+              <Route path="/editThongTinCaNhan" element={<EditThongTinCaNhan />}></Route>
             </Routes>
           </Content>
 
