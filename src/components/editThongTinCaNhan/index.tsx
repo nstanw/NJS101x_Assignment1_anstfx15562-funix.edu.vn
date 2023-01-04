@@ -66,7 +66,7 @@ const EditThongTinCaNhan: React.FC = () => {
         <>
           <Modal
             title="Thay đổi hình ảnh"
-            visible={isModalOpen}
+            open={isModalOpen}
             footer={false}
             onCancel={() => setIsModalOpen(false)}
           >
@@ -75,7 +75,7 @@ const EditThongTinCaNhan: React.FC = () => {
                 <Input allowClear />
               </Form.Item>
               <Form.Item wrapperCol={{ offset: 20, span: 4 }}>
-                <Button type="primary" htmlType="submit">
+                <Button  danger htmlType="submit">
                   Submit
                 </Button>
               </Form.Item>

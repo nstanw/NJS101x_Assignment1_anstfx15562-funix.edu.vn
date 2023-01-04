@@ -8,6 +8,7 @@ const layout = {
 };
 
 interface ITraCuuGioLamViec {
+  ngay:Date;
   name: String | null;
   noiLam: String | null;
   annualLeave?: Number | null;
@@ -33,6 +34,14 @@ const TraCuuGioLam = () => {
   },[]);
 
   const columnsTableListPhien = [
+    {
+      title: 'Ngày',
+      dataIndex: 'ngay',
+      key: 'ngay',
+      render: (ngay: Date) => {
+        return <span>{new Date(ngay).toLocaleDateString()}</span>;
+      },
+    },
     {
       title: 'Tên nhân viên',
       dataIndex: 'name',
