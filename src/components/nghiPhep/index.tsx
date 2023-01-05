@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, DatePicker, Form, Input, Switch } from "antd";
+import { Button, DatePicker, Form, Input, message, Switch } from "antd";
 import nghiPhepService, { IDangKiNghiPhepInput } from "../../services/nghiPhepService";
 
 const { RangePicker } = DatePicker;
@@ -8,41 +8,45 @@ const NghiPhep: React.FC = () => {
   const [nghiNhieuNgay, setNghiNhieuNgay] = React.useState(false);
 
   const onFinish = async (fieldsValue: any) => {
-    // Should format date value before submit.
-    const rangeValue = fieldsValue["range-picker"];
-    if (nghiNhieuNgay) {
+    try {
+      // Should format date value before submit.
+      const rangeValue = fieldsValue["range-picker"];
+      if (nghiNhieuNgay) {
+        const values = {
+          lyDo: fieldsValue.lyDo,
+          soGioNghi: Math.abs(new Date(rangeValue[0].format("YYYY-MM-DD")).getDate() - new Date(rangeValue[1].format("YYYY-MM-DD")).getDate()) * 8,
+          ngayDangKiPhep: [rangeValue[0].format("YYYY-MM-DD"), rangeValue[1].format("YYYY-MM-DD")],
+        };
+
+        const input: IDangKiNghiPhepInput = {
+          ngayDangKiPhep: values.ngayDangKiPhep,
+          soGioNghi: values.soGioNghi,
+          lyDo: values.lyDo,
+        };
+        let dangKiNghiPhep = await nghiPhepService.dangKiNghiPhep(input);
+
+        console.log("dangKiNghiPhep:", dangKiNghiPhep);
+        console.log("Success:", values);
+        return;
+      }
       const values = {
         lyDo: fieldsValue.lyDo,
-        soGioNghi: Math.abs(new Date(rangeValue[0].format("YYYY-MM-DD")).getDate() - new Date(rangeValue[1].format("YYYY-MM-DD")).getDate()) * 8,
-        ngayDangKiPhep: [rangeValue[0].format("YYYY-MM-DD"), rangeValue[1].format("YYYY-MM-DD")],
+        ngayDangKiPhep: [fieldsValue["date-picker"].format("YYYY-MM-DD")],
+        soGioNghi: fieldsValue.soGioNghi,
       };
-
       const input: IDangKiNghiPhepInput = {
         ngayDangKiPhep: values.ngayDangKiPhep,
         soGioNghi: values.soGioNghi,
         lyDo: values.lyDo,
       };
       let dangKiNghiPhep = await nghiPhepService.dangKiNghiPhep(input);
-
       console.log("dangKiNghiPhep:", dangKiNghiPhep);
       console.log("Success:", values);
       return;
+      message.success("Đăng kí phép thành công");
+    } catch (error) {
+      message.error("Lỗi");
     }
-    const values = {
-      lyDo: fieldsValue.lyDo,
-      ngayDangKiPhep: [fieldsValue["date-picker"].format("YYYY-MM-DD")],
-      soGioNghi: fieldsValue.soGioNghi,
-    };
-    const input: IDangKiNghiPhepInput = {
-      ngayDangKiPhep: values.ngayDangKiPhep,
-      soGioNghi: values.soGioNghi,
-      lyDo: values.lyDo,
-    };
-    let dangKiNghiPhep = await nghiPhepService.dangKiNghiPhep(input);
-
-    console.log("dangKiNghiPhep:", dangKiNghiPhep);
-    console.log("Success:", values);
-    return;
   };
 
   const onFinishFailed = (errorInfo: any) => {
