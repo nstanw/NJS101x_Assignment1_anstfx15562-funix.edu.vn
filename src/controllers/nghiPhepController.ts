@@ -19,7 +19,7 @@ export default new class {
                 { name: "admin" },
                 {
                     ngayDangKiPhep: req.body.ngayDangKiPhep as [],
-                    dangKiGioPhep: req.body.dangKiGioPhep,
+                    soGioNghi: req.body.soGioNghi,
                     lyDo: req.body.lyDo,
                 },
                 { returnDocument: "after", upsert: true })

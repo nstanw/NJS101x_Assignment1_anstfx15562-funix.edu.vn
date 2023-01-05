@@ -9,6 +9,7 @@ const nhanVienSchema = new Schema({
     department: String,
     annualLeave: Number,
     image: String,
+    
 });
 
 export default mongoose.model("nhanVien", nhanVienSchema);

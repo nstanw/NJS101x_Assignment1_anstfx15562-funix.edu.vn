@@ -1,3 +1,4 @@
+import nhanVienModel from "../Models/nhanVienModel";
 import { isNonNullChain } from "typescript";
 import phienLamViecModel from "../Models/phienLamViecModel";
 import { getHouseBetweenTwoDate } from "../util/getHouseBetweenTwoDate";
@@ -26,7 +27,6 @@ type ITraCuuGioLamViecDto = ITraCuuGioLamViec[];
 export default new (class PhienLamViec {
   //GET active
   async getActive(req, res) {
-
     let checkActive = await phienLamViecModel.findOne({ active: true });
     if (checkActive === null) {
       let result: PhienLamViecDto = [
@@ -66,8 +66,7 @@ export default new (class PhienLamViec {
     let checkActive = await phienLamViecModel.findOne({ active: true });
 
     // nếu active = false và chưa có phiên sẽ thêm phiên làm mới
-    let isCheckAddPhienLamViec: Boolean =
-      checkActive === null || dataBase.length === 0;
+    let isCheckAddPhienLamViec: Boolean = checkActive === null || dataBase.length === 0;
     if (isCheckAddPhienLamViec) {
       let newPhien = new phienLamViecModel({
         name: "admin",
@@ -84,33 +83,25 @@ export default new (class PhienLamViec {
         return console.log(error);
       }
     }
-    return res
-      .status(400)
-      .json({ err: "Đang trong phiên làm việc không thể điểm danh" });
+    return res.status(400).json({ err: "Đang trong phiên làm việc không thể điểm danh" });
   }
   // PATCH Kết thúc phiên làm việc
   async ketThucPhienLamViec(req, res, next) {
     // kiểm tra trong list phiên có phiên nào không. nếu trống thông báo lỗi
     let dataBase = (await phienLamViecModel.find({})) as [];
     if (dataBase.length === 0) {
-      return res
-        .status(400)
-        .json({ error: "Hiện tại không có phiên làm việc nào" });
+      return res.status(400).json({ error: "Hiện tại không có phiên làm việc nào" });
     }
     //kiem tra người dùng đang trong phiên không
     let phienActive = await phienLamViecModel.findOne({ active: true });
     if (phienActive === null) {
       return res.json({
-        error:
-          "Hiện tại chưa có phiên làm việc nào đang diễn ra. Không thể kết thúc",
+        error: "Hiện tại chưa có phiên làm việc nào đang diễn ra. Không thể kết thúc",
       });
     }
     //thay dổi trạng thái
     try {
-      let thoiGianLam = getHouseBetweenTwoDate(
-        Date.now(),
-        phienActive.batDau.getTime()
-      );
+      let thoiGianLam = getHouseBetweenTwoDate(Date.now(), phienActive.batDau.getTime());
       let setThoiGianKetThuc = {
         ketThuc: new Date(Date.now()),
         thoiGianLam: thoiGianLam,
@@ -118,11 +109,7 @@ export default new (class PhienLamViec {
       };
 
       //update thời gian kết thúc và tính thời gian đã làm
-      await phienLamViecModel.findOneAndUpdate(
-        { active: true },
-        setThoiGianKetThuc,
-        { returnDocument: "after" }
-      );
+      await phienLamViecModel.findOneAndUpdate({ active: true }, setThoiGianKetThuc, { returnDocument: "after" });
 
       let listPhienLamViecHomNay = await phienLamViecModel.find({});
       console.log(listPhienLamViecHomNay);
@@ -150,6 +137,9 @@ export default new (class PhienLamViec {
         noiLam: "Công Ty",
       });
 
+      let salaryScale = await nhanVienModel.findOne({});
+      let resultSalaryScale = salaryScale.salaryScale;
+
       let result: ITraCuuGioLamViecDto = listGioLamCongTy.map((phien) => ({
         ngay: phien.batDau,
         name: phien.name,
@@ -159,6 +149,7 @@ export default new (class PhienLamViec {
         ketThuc: phien.ketThuc,
         thoiGianLam: phien.thoiGianLam,
         active: phien.active,
+        salaryScale: resultSalaryScale,
       }));
       console.log(result);
       return res.json(result);

@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const nghiPhepSchema = new Schema({
     name: String,
     ngayDangKiPhep: Array,
-    dangKiGioPhep: Number,
+    soGioNghi: Number,
     soNgayPhepConLai: Number,
     lyDo: String,
 });
