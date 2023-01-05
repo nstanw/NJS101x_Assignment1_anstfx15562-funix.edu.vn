@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Form, Select, Table } from 'antd';
-import phienLamViecService from '../../services/phienLamViec/phienLamViecService';
+import phienLamViecService from '../../services/phienLamViecService';
 
 const { Option } = Select;
 

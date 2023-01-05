@@ -1,23 +1,48 @@
 import React from "react";
-import { Button, DatePicker, Form, Input } from "antd";
+import { Button, DatePicker, Form, Input, Switch } from "antd";
+import nghiPhepService, { IDangKiNghiPhepInput } from "../../services/nghiPhepService";
 
 const { RangePicker } = DatePicker;
 
 const NghiPhep: React.FC = () => {
-  const [isRangePicker, setIsRangePicker] = React.useState(false);
+  const [nghiNhieuNgay, setNghiNhieuNgay] = React.useState(false);
 
-  const onFinish = (fieldsValue: any) => {
+  const onFinish = async (fieldsValue: any) => {
     // Should format date value before submit.
     const rangeValue = fieldsValue["range-picker"];
+    if (nghiNhieuNgay) {
+      const values = {
+        lyDo: fieldsValue.lyDo,
+        soGioNghi: Math.abs(new Date(rangeValue[0].format("YYYY-MM-DD")).getDate() - new Date(rangeValue[1].format("YYYY-MM-DD")).getDate()) * 8,
+        ngayDangKiPhep: [rangeValue[0].format("YYYY-MM-DD"), rangeValue[1].format("YYYY-MM-DD")],
+      };
+
+      const input: IDangKiNghiPhepInput = {
+        ngayDangKiPhep: values.ngayDangKiPhep,
+        soGioNghi: values.soGioNghi,
+        lyDo: values.lyDo,
+      };
+      let dangKiNghiPhep = await nghiPhepService.dangKiNghiPhep(input);
+
+      console.log("dangKiNghiPhep:", dangKiNghiPhep);
+      console.log("Success:", values);
+      return;
+    }
     const values = {
-      ...fieldsValue,
-      'date': fieldsValue['date-picker'].format('YYYY-MM-DD'),
-      "listDate": [
-        rangeValue[0].format("YYYY-MM-DD"),
-        rangeValue[1].format("YYYY-MM-DD"),
-      ],
+      lyDo: fieldsValue.lyDo,
+      ngayDangKiPhep: [fieldsValue["date-picker"].format("YYYY-MM-DD")],
+      soGioNghi: fieldsValue.soGioNghi,
     };
+    const input: IDangKiNghiPhepInput = {
+      ngayDangKiPhep: values.ngayDangKiPhep,
+      soGioNghi: values.soGioNghi,
+      lyDo: values.lyDo,
+    };
+    let dangKiNghiPhep = await nghiPhepService.dangKiNghiPhep(input);
+
+    console.log("dangKiNghiPhep:", dangKiNghiPhep);
     console.log("Success:", values);
+    return;
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -34,41 +59,38 @@ const NghiPhep: React.FC = () => {
     ],
   };
   const config = {
-    rules: [{ type: 'object' as const, required: true, message: 'Please select time!' }],
+    rules: [{ type: "object" as const, required: true, message: "Please select time!" }],
+  };
+
+  const onChangeModeNghiPhep = (checked: boolean) => {
+    setNghiNhieuNgay(!nghiNhieuNgay);
+    console.log(`switch to ${checked}`);
   };
 
   return (
-    <Form
-      name="basic"
-      labelCol={{ span: 8 }}
-      wrapperCol={{ span: 16 }}
-      initialValues={{ remember: true }}
-      onFinish={onFinish}
-      onFinishFailed={onFinishFailed}
-      autoComplete="off"
-    >
-      <Form.Item name="range-picker" label="Chọn nhiều ngày" {...rangeConfig}>
-        <RangePicker />
-      </Form.Item>
+    <Form name="basic" labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} initialValues={{ remember: true }} onFinish={onFinish} onFinishFailed={onFinishFailed} autoComplete="off">
+      <h4>Đăng kí nghỉ phép</h4>
+      <span>
+        <Switch onChange={onChangeModeNghiPhep} /> Nghỉ nhiều ngày
+      </span>
+      {nghiNhieuNgay && (
+        <Form.Item name="range-picker" label="Chọn nhiều ngày" {...rangeConfig}>
+          <RangePicker />
+        </Form.Item>
+      )}
+      {!nghiNhieuNgay && (
+        <>
+          <Form.Item name="date-picker" label="Chọn ngày" {...config}>
+            <DatePicker />
+          </Form.Item>
+          <Form.Item label="Số giờ nghỉ" name="soGioNghi" rules={[{ required: true, message: "Nhập số giờ nghỉ" }]}>
+            <Input type="number" />
+          </Form.Item>
+        </>
+      )}
 
-      <Form.Item name="date-picker" label="DatePicker" {...config}>
-        <DatePicker />
-      </Form.Item>
-
-      <Form.Item
-        label="Lý do"
-        name="lyDo"
-        rules={[{ required: true, message: "Lý do nghỉ phép" }]}
-      >
+      <Form.Item label="Lý do" name="lyDo" rules={[{ required: true, message: "Lý do nghỉ phép" }]}>
         <Input />
-      </Form.Item>
-
-      <Form.Item
-        label="Số giờ nghỉ"
-        name="soGioNghi"
-        rules={[{ required: true, message: "Nhập số giờ nghỉ" }]}
-      >
-        <Input type="number" />
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
