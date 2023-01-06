@@ -3,6 +3,7 @@ const { Schema } = mongoose;
 
 const covidSchema = new Schema({
     name: String,
+    gmail: {type: String, unique: true},
     ngayGioDangKiThanNhiet: String,
     nhietDo: Number,
     ngayTiemVaccine1: Date,

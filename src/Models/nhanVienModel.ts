@@ -3,6 +3,7 @@ const { Schema } = mongoose;
 
 const nhanVienSchema = new Schema({
     name: String,
+    gmail: {type: String, unique: true},
     doB: Date,
     salaryScale: Number,
     startDate: Date,

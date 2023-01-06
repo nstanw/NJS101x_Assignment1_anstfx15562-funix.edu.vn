@@ -5,14 +5,15 @@ export default new (class NhanVienController {
   //POST
   async addNhanVien(req, res) {
     let newNhanVien = new nhanVienModel({
+      gmail: req.body.gmail,
       name: req.body.name,
       doB: Date.now(),
       salaryScale: req.body.salaryScale,
       startDate: req.body.startDate,
       department: req.body.department,
       annualLeave: req.body.annualLeave,
-      image: req.body.image
-    })
+      image: req.body.image,
+    });
 
     try {
       let themNhanVien = await newNhanVien.save();
@@ -25,7 +26,7 @@ export default new (class NhanVienController {
   //GET thông tin nhân viên
   async getNhanVien(req, res) {
     try {
-      let infoNhanVien = await nhanVienModel.findOne({ id: "63b44ee04dba075be5a46f8c" })
+      let infoNhanVien = await nhanVienModel.findOne({ gmail: "admin@admin.com" });
       console.log(infoNhanVien);
       return res.status(200).json(infoNhanVien);
     } catch (error) {
@@ -36,16 +37,11 @@ export default new (class NhanVienController {
   //PATCH image link
   async editLinkImage(req, res) {
     try {
-      let infoNhanVien = await nhanVienModel.findOneAndUpdate(
-        { id: "63b44ee04dba075be5a46f8c" },
-        { image: req.body.image },
-        { returnDocument: "after" })
+      let infoNhanVien = await nhanVienModel.findOneAndUpdate({ gmail: "admin@admin.com" }, { image: req.body.image }, { returnDocument: "after" });
       console.log(infoNhanVien);
       return res.json(infoNhanVien);
     } catch (error) {
       return res.json(error);
     }
   }
-
 })();
-

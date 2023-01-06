@@ -6,8 +6,10 @@ function Router(app) {
   app.post("/phienLamViec/addPhienLamViec", phienLamViecController.addPhienLamViec)
   app.patch("/phienLamViec/ketThucPhienLamViec", phienLamViecController.ketThucPhienLamViec)
   app.get("/phienLamViec/traCuuThongTinGioLamCongTy", phienLamViecController.traCuuThongTinGioLamCongTy)
+  app.get("/phienLamViec/getLuongTheoThang", phienLamViecController.getLuongTheoThang)
 
   // dang ki phep
+  app.get("/nghiPhep/getThongTinNghiPhepNV", nghiPhepController.getThongTinNghiPhepNV)
   app.get("/nghiPhep/getNgayPhepConLai", nghiPhepController.getNgayPhepConLai)
   app.patch("/nghiPhep/dangKiNghiPhep", nghiPhepController.dangKiNghiPhep)
 }

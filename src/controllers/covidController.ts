@@ -7,7 +7,7 @@ export default new class CovidController {
     async dangKiThongTinThanNhiet(req, res, next) {
         try {
             let dangKiThongTinThanNhiet = await covidModel.findOneAndUpdate(
-                { name: "admin" },
+                { gmail: "admin@admin.com" },
                 {
                     ngayGioDangKiThanNhiet: req.body.ngayGioDangKiThanNhiet,
                     nhietDo: req.body.nhietDo,
@@ -23,7 +23,7 @@ export default new class CovidController {
     async dangKiThongTinVaccin(req, res, next) {
         try {
             let dangKiThongTinVaccin = await covidModel.findOneAndUpdate(
-                { name: "admin" },
+                { gmail: "admin@admin.com" },
                 {
                     ngayTiemVaccine1: req.body.ngayTiemVaccine1,
                     tenVaccine1: req.body.tenVaccine1,
@@ -43,7 +43,7 @@ export default new class CovidController {
     async dangKiDuongTinhCovid(req, res, next) {
         try {
             let dangKiDuongTinhCovid = await covidModel.findOneAndUpdate(
-                { name: "admin" },
+                { gmail: "admin@admin.com" },
                 {
                     duongTinh: req.body.duongTinh,
                     ngayKhaiBaoCovid: req.body.ngayKhaiBaoCovid
