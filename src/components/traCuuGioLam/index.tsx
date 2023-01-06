@@ -1,6 +1,8 @@
-import { Form, Table } from "antd";
+import { Form, message, Select, Space, Table } from "antd";
 import React from "react";
+import nghiPhepService from "../../services/nghiPhepService";
 import phienLamViecService from "../../services/phienLamViecService";
+import Search from "./search";
 
 const layout = {
   labelCol: { span: 8 },
@@ -35,20 +37,28 @@ type ITraCuuGioLamViecDto = ITraCuuGioLamViec[];
 const TraCuuGioLam = () => {
   const [listTraCuuState, setListTraCuuState] = React.useState<any[]>();
   const [chiTietLuong, setChiTierLuong] = React.useState<any>();
-  const [thoiGianLam, setThoiGianLam] = React.useState<number>();
+  const [listFilter, setListFilter] = React.useState<any>(listTraCuuState);
+  const [isFilter, setIsFilter] = React.useState(false);
+  const [thongTinNghiPhep, setThongTinNghiPhep] = React.useState<number>();
 
   React.useEffect(() => {
     (async function run() {
       try {
         // get toàn bộ phiên về
         let listTraCuuGioLam = await phienLamViecService.traCuuThongTinGioLamCongTy();
+        let thongTinNghiPhepNV = await nghiPhepService.getThongTinNghiPhepNV();
+        setThongTinNghiPhep(thongTinNghiPhepNV);
 
         // get các ngày có trong phiên
         const cacNgayCoTrongPhien: Set<number> = new Set(listTraCuuGioLam.map((date: any) => new Date(date.ngay).getDay()));
+
         // duyệt vào các ngày. tính thông tin lương
         let traCuuThongTin: any[] = [];
         let chiTietLuong: IChiTietLuong;
-        let sum;
+        let sum; // tổng giờ làm
+        let gioLamThieu;
+
+        //#region  Tra cứu giờ làm
 
         cacNgayCoTrongPhien.forEach((ngay) => {
           // nhóm các phiên làm trong ngày vào 1 mảng
@@ -68,7 +78,7 @@ const TraCuuGioLam = () => {
             let rowTraCuuGioLamViec = {
               ...checkActiveCuaPhienNgayCuThe[0],
               ketThuc: checkActiveCuaPhienNgayCuThe[checkActiveCuaPhienNgayCuThe.length - 1].ketThuc,
-              thoiGianLam: sum,
+              thoiGianLam: Math.round(sum * 100) / 100,
               lamThem: lamThemGio,
             };
             traCuuThongTin.push(rowTraCuuGioLamViec);
@@ -77,26 +87,23 @@ const TraCuuGioLam = () => {
             let lamThem: number;
             let gioLamThieu: number;
             if (sum && sum > 8) {
-              lamThem = sum - 8;
+              lamThem = Math.round(sum * 100) / 100 - 8;
               gioLamThieu = 0;
             } else {
               lamThem = 0;
-              gioLamThieu = 8 - sum;
+              gioLamThieu = 8 - Math.round(sum * 100) / 100;
             }
 
             chiTietLuong = {
               name: checkActiveCuaPhienNgayCuThe[0].name,
-              annualLeave: checkActiveCuaPhienNgayCuThe[0].annualLeave,
+              annualLeave: thongTinNghiPhepNV.soPhepDangKi,
               lamThem: lamThem,
-              gioLamThieu: gioLamThieu,
-              thoiGianLam: sum,
+              gioLamThieu: gioLamThieu - thongTinNghiPhepNV.soPhepDangKi,
+              thoiGianLam: Math.round(sum * 100) / 100,
               salaryScale: checkActiveCuaPhienNgayCuThe[0].salaryScale,
-              luong: checkActiveCuaPhienNgayCuThe[0].salaryScale*3000000  + (sum - gioLamThieu) * 200000 ,
+              luong: checkActiveCuaPhienNgayCuThe[0].salaryScale * 3000000 + (lamThem - (gioLamThieu - thongTinNghiPhepNV.soPhepDangKi)) * 200000,
             };
             setChiTierLuong(chiTietLuong);
-            console.log("chiTietLuong", chiTietLuong);
-            console.log("checkActiveCuaPhienNgayCuThe", checkActiveCuaPhienNgayCuThe[0]);
-
             return;
           }
           // dữ liệu render ra UI
@@ -111,7 +118,10 @@ const TraCuuGioLam = () => {
           setListTraCuuState(traCuuThongTin);
           return;
         });
-      } catch (error) {}
+        //#endregion
+      } catch (error) {
+        console.log("Failed:", error);
+      }
     })();
   }, []);
 
@@ -147,8 +157,6 @@ const TraCuuGioLam = () => {
       dataIndex: "ketThuc",
       key: "ketThuc",
       render: (ketThuc: Date) => {
-        console.log(ketThuc);
-
         return <span>{ketThuc ? new Date(ketThuc).toLocaleTimeString() : "--"}</span>;
       },
     },
@@ -181,7 +189,7 @@ const TraCuuGioLam = () => {
       key: "salaryScale ",
     },
     {
-      title: "ngày phép còn lại",
+      title: "Số ngày phép đã đăng kí",
       dataIndex: "annualLeave",
       key: "annualLeave",
     },
@@ -201,27 +209,130 @@ const TraCuuGioLam = () => {
     console.log(values);
   };
 
+  const handleChangeSelectThangLuong = (value: string) => {
+    
+    console.log(`selected ${value}`);
+  };
+
   return (
     <div className="traCuuGioLam">
-      <Form {...layout} name="control-hooks" onFinish={onFinish}>
-        <h2>Danh sách giờ đã làm</h2>
-        <Table
-          dataSource={listTraCuuState}
-          columns={[
-            ...columnsTableListPhien,
-            {
-              title: "Trạng thái",
-              dataIndex: "active",
-              render: (value: boolean, record: any, index) => {
-                return <span key={index}>{value ? "Đang làm" : "Không làm"}</span>;
+      <Search
+        handleSubmit={(active, q) => {
+          const listFilter = listTraCuuState?.filter((d) => d.active === active);
+          setListFilter(listFilter);
+          setIsFilter(true);
+          console.log("listDangLam", listFilter);
+        }}
+        onCandle={() => setIsFilter(false)}
+      />
+      {!isFilter ? (
+        <Form {...layout} name="control-hooks" onFinish={onFinish}>
+          <h2>Danh sách giờ đã làm</h2>
+          <Table
+            dataSource={listTraCuuState}
+            columns={[
+              ...columnsTableListPhien,
+              {
+                title: "Trạng thái",
+                dataIndex: "active",
+                render: (value: boolean, record: any, index) => {
+                  return <span key={index}>{value ? "Đang làm" : "Không làm"}</span>;
+                },
               },
-            },
-          ]}
-        />
-      </Form>
+            ]}
+          />
+        </Form>
+      ) : (
+        <Form {...layout} name="control-hooks" onFinish={onFinish}>
+          <h2>Danh sách giờ đã làm</h2>
+          <Table
+            dataSource={listFilter}
+            columns={[
+              ...columnsTableListPhien,
+              {
+                title: "Trạng thái",
+                dataIndex: "active",
+                render: (value: boolean, record: any, index) => {
+                  return <span key={index}>{value ? "Đang làm" : "Không làm"}</span>;
+                },
+              },
+            ]}
+          />
+        </Form>
+      )}
       <Form {...layout} name="control-hooks" onFinish={onFinish}>
         <h2>Lương = salaryScale * 3000000 + (overTime - số giờ làm thiếu) * 200000</h2>
+        <span > Chọn tháng xem lương: < Space/>
+          <Select
+            defaultValue={`${new Date(Date.now()).getMonth() + 1}`}
+            style={{ width: 120 }}
+            onChange={handleChangeSelectThangLuong}
+            options={[
+              {
+                value: "1",
+                label: "Tháng 1",
+                key: "1",
+              },
+              {
+                value: "2",
+                label: "Tháng 2",
+                key: "2",
+              },
+              {
+                value: "3",
+                label: "Tháng 3",
+                key: "3",
+              },
+              {
+                value: "4",
+                label: "Tháng 4",
+                key: "4",
+              },
+              {
+                value: "5",
+                label: "Tháng 5",
+                key: "5",
+              },
+              {
+                value: "6",
+                label: "Tháng 6",
+                key: "6",
+              },
+              {
+                value: "7",
+                label: "Tháng 7",
+                key: "7",
+              },
+              {
+                value: "8",
+                label: "Tháng 8",
+                key: "8",
+              },
+              {
+                value: "9",
+                label: "Tháng 9",
+                key: "9",
+              },
+              {
+                value: "10",
+                label: "Tháng 10",
+                key: "10",
+              },
+              {
+                value: "11",
+                label: "Tháng 11",
+                key: "11",
+              },
+              {
+                value: "12",
+                label: "Tháng 12",
+                key: "12",
+              },
+            ]}
+          />
+        </span>
         <Table
+        style={{padding: 10}}
           dataSource={[chiTietLuong]}
           columns={[
             ...columnsChiTietLuong,

@@ -22,12 +22,12 @@ type INhanVien = {
   salaryScale: number;
   startDate: string;
   _id: string;
+  gmail: string;
 };
 
 const EditThongTinCaNhan: React.FC = () => {
   const [nhanVien, setNhanVien] = useState<INhanVien>();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [linkImage, setLinkImage] = useState();
   const [form] = Form.useForm();
 
   const getInfo = async function run() {
@@ -48,7 +48,6 @@ const EditThongTinCaNhan: React.FC = () => {
     form.resetFields();
     try {
       await nhanVienService.editLinkImage(values.image);
-      setLinkImage(values.image);
       console.log(values.image);
 
       getInfo();
@@ -88,7 +87,7 @@ const EditThongTinCaNhan: React.FC = () => {
             src={nhanVien.image}
           />
           <Descriptions title="User Info">
-            <Descriptions.Item label="Id">{nhanVien?._id}</Descriptions.Item>
+            <Descriptions.Item label="Id">{nhanVien?.gmail}</Descriptions.Item>
             <Descriptions.Item label="name">{nhanVien?.name}</Descriptions.Item>
             <Descriptions.Item label="doB">{nhanVien?.doB}</Descriptions.Item>
             <Descriptions.Item label="salaryScale">
@@ -103,9 +102,6 @@ const EditThongTinCaNhan: React.FC = () => {
             <Descriptions.Item label="annualLeave">
               {nhanVien?.annualLeave}
             </Descriptions.Item>
-            {/* <Descriptions.Item label="image">
-              {nhanVien?.image}
-            </Descriptions.Item> */}
           </Descriptions>
         </>
       )}
