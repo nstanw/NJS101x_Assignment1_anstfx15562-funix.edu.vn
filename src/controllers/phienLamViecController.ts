@@ -179,7 +179,7 @@ export default new (class PhienLamViec {
         gioLamThieu: Math.abs(gioLamThieu - thongTinNghiPhepNV.soPhepDangKi),
         thoiGianLam: Math.round(sum * 100) / 100,
         salaryScale: resultSalaryScale,
-        luong: resultSalaryScale * 3000000 + (lamThem - (gioLamThieu - thongTinNghiPhepNV.soPhepDangKi)) * 200000,
+        luong: resultSalaryScale * 3000000 + (lamThem - gioLamThieu * 200000),
       };
 
       console.log(chiTietLuong);
