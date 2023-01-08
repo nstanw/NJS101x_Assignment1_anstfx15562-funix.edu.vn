@@ -1,14 +1,7 @@
 import React, { useState } from "react";
-import {
-  Avatar,
-  Button,
-  Descriptions,
-  Form,
-  Input,
-  message,
-  Modal,
-} from "antd";
+import { Avatar, Button, Descriptions, Form, Input, message, Modal } from "antd";
 import nhanVienService from "../../services/nhanVienService";
+import { useNavigate } from "react-router-dom";
 
 type INhanVien = {
   annualLeave: number;
@@ -23,12 +16,17 @@ type INhanVien = {
 };
 
 const EditThongTinCaNhan: React.FC = () => {
+  const navigate = useNavigate();
   const [nhanVien, setNhanVien] = useState<INhanVien>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
 
   const getInfo = async function run() {
     let nhanVienInfo = await nhanVienService.getNhanVien();
+    if (!nhanVienInfo.isAuth) {
+      message.error("Vui lòng đăng nhập!");
+      return navigate("/login");
+    }
     setNhanVien({
       ...nhanVienInfo,
       doB: new Date(nhanVienInfo.doB).toLocaleDateString(),
@@ -56,18 +54,13 @@ const EditThongTinCaNhan: React.FC = () => {
     <>
       {nhanVien && (
         <>
-          <Modal
-            title="Thay đổi hình ảnh"
-            open={isModalOpen}
-            footer={false}
-            onCancel={() => setIsModalOpen(false)}
-          >
+          <Modal title="Thay đổi hình ảnh" open={isModalOpen} footer={false} onCancel={() => setIsModalOpen(false)}>
             <Form onFinish={onFinish}>
               <Form.Item name="image" label="Nhập đường dẫn hình ảnh">
                 <Input allowClear />
               </Form.Item>
               <Form.Item wrapperCol={{ offset: 20, span: 4 }}>
-                <Button  danger htmlType="submit">
+                <Button danger htmlType="submit">
                   Submit
                 </Button>
               </Form.Item>
@@ -83,18 +76,10 @@ const EditThongTinCaNhan: React.FC = () => {
             <Descriptions.Item label="Id">{nhanVien?.gmail}</Descriptions.Item>
             <Descriptions.Item label="name">{nhanVien?.name}</Descriptions.Item>
             <Descriptions.Item label="doB">{nhanVien?.doB}</Descriptions.Item>
-            <Descriptions.Item label="salaryScale">
-              {nhanVien?.salaryScale}
-            </Descriptions.Item>
-            <Descriptions.Item label="startDate">
-              {nhanVien?.startDate}
-            </Descriptions.Item>
-            <Descriptions.Item label="department">
-              {nhanVien?.department}
-            </Descriptions.Item>
-            <Descriptions.Item label="annualLeave">
-              {nhanVien?.annualLeave}
-            </Descriptions.Item>
+            <Descriptions.Item label="salaryScale">{nhanVien?.salaryScale}</Descriptions.Item>
+            <Descriptions.Item label="startDate">{nhanVien?.startDate}</Descriptions.Item>
+            <Descriptions.Item label="department">{nhanVien?.department}</Descriptions.Item>
+            <Descriptions.Item label="annualLeave">{nhanVien?.annualLeave}</Descriptions.Item>
           </Descriptions>
         </>
       )}

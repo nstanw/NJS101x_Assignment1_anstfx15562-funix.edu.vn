@@ -1,10 +1,12 @@
 import React from "react";
 import { Button, DatePicker, Form, Input, message, Switch } from "antd";
 import nghiPhepService, { IDangKiNghiPhepInput } from "../../services/nghiPhepService";
+import { useNavigate } from "react-router-dom";
 
 const { RangePicker } = DatePicker;
 
 const NghiPhep: React.FC = () => {
+  const navigate = useNavigate();
   const [nghiNhieuNgay, setNghiNhieuNgay] = React.useState(false);
   const [soNgayPhepConLai, setSoNgayPhepConLai] = React.useState(0);
   const [soNgayPhepDangKi, setSoNgayPhepDangKi] = React.useState(0);
@@ -13,6 +15,10 @@ const NghiPhep: React.FC = () => {
   React.useEffect(() => {
     (async function run() {
       let PhepConLai = await nghiPhepService.getNgayPhepConLai();
+      if (!PhepConLai.isAuth) {
+        message.error("Vui lòng đăng nhập!");
+        return navigate("/login");
+      }
       setSoNgayPhepConLai(PhepConLai.soNgayPhepConLai);
     })();
   }, [soNgayPhepConLai, soNgayPhepDangKi, isChange]);
@@ -68,7 +74,7 @@ const NghiPhep: React.FC = () => {
       if (soNgayPhepConLai && soNgayPhepConLai < 0) {
         return message.error("Bạn đã hết số phép quy định");
       }
-       await nghiPhepService.dangKiNghiPhep(input);
+      await nghiPhepService.dangKiNghiPhep(input);
       setIsChange(!isChange);
       message.success("Đăng kí phép thành công");
       return;

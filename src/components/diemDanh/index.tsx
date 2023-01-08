@@ -1,6 +1,7 @@
 import React from "react";
-import { Button, Form, Select, Table } from "antd";
+import { Button, Form, message, Select, Table } from "antd";
 import phienLamViecService from "../../services/phienLamViecService";
+import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 
@@ -13,6 +14,7 @@ const tailLayout = {
 };
 
 const DiemDanh: React.FC = () => {
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const [isActive, setIsActive] = React.useState(false);
   const [phienLamViecHienTai, setPhienLamViecHienTai] = React.useState<any>();
@@ -23,9 +25,16 @@ const DiemDanh: React.FC = () => {
   React.useEffect(() => {
     (async function run() {
       const result = await phienLamViecService.getActive();
+      if (!result.isAuth) {
+        message.error("Vui lòng đăng nhập!");
+        return navigate("/login");
+      }
       setPhienLamViecHienTai(result);
-      setIsActive(result[0].active);
-      setName(result[0].name)
+      if (result[0].active && result[0].name) {
+        setName(result[0].name);
+        return setIsActive(result[0].active);
+      }
+      setIsActive(false);
     })();
   }, []);
 
@@ -106,7 +115,7 @@ const DiemDanh: React.FC = () => {
       {isActive ? (
         <Table
           pagination={false}
-          dataSource={phienLamViecHienTai.map((d : any, index: any) => ({...d, key: index}))}
+          dataSource={phienLamViecHienTai.map((d: any, index: any) => ({ ...d, key: index }))}
           columns={[
             ...columnsTablePhienHienTai,
             {
@@ -156,7 +165,7 @@ const DiemDanh: React.FC = () => {
       </Form.Item>
       {listPhienLamViec.length > 0 && (
         <Table
-          dataSource={listPhienLamViec.map((d : any, index: any) => ({...d, key: index}))}
+          dataSource={listPhienLamViec.map((d: any, index: any) => ({ ...d, key: index }))}
           columns={[
             ...columnsTableListPhien,
             {

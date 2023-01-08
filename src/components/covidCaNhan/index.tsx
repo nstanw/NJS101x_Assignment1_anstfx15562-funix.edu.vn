@@ -1,9 +1,22 @@
 import React from 'react';
 import { Button, Form, Input, message, Select, Tabs } from 'antd';
 import covidService, { IDangKiThongTinVaccineInput } from '../../services/covidService';
+import phienLamViecService from '../../services/phienLamViecService';
+import { useNavigate } from "react-router-dom";
+
 const { Option } = Select;
 
 const CovidCaNhan = () => {
+  const navigate = useNavigate();
+  React.useEffect(() => {
+    (async function run() {
+      const result = await phienLamViecService.getActive();
+      if (!result.isAuth) {
+        return  navigate("/login");
+      }
+    })();
+  }, []);
+  
   const onFinish = async (values: any) => {
     if (values) {
       console.log(typeof values.ngayKhaiBaoCovid);

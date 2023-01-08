@@ -1,7 +1,8 @@
-import { Button, Form, Select, Space, Table } from "antd";
+import { Button, Form, message, Select, Space, Table } from "antd";
 import React from "react";
 import phienLamViecService from "../../services/phienLamViecService";
 import Search from "./search";
+import { useNavigate } from "react-router-dom";
 
 const layout = {
   labelCol: { span: 8 },
@@ -30,12 +31,17 @@ const TraCuuGioLam = () => {
   const [showLuong, setShowLuong] = React.useState(false);
   const [listFilter, setListFilter] = React.useState<any>(listTraCuuState);
   const [isFilter, setIsFilter] = React.useState(false);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     (async function run() {
       try {
         // get toàn bộ phiên về
         let listTraCuuGioLam = await phienLamViecService.traCuuThongTinGioLamCongTy();
+        if (!listTraCuuGioLam.isAuth) {
+          message.error("Vui lòng đăng nhập!");
+          return navigate("/login");
+        }
         // get các ngày có trong phiên
         const cacNgayCoTrongPhien: Set<number> = new Set(listTraCuuGioLam.map((date: any) => new Date(date.ngay).getDay()));
 
@@ -226,7 +232,7 @@ const TraCuuGioLam = () => {
         </Form>
       )}
       <Button
-      danger
+        danger
         onClick={() => {
           const thangHienTai = new Date(Date.now()).getMonth() + 1;
           handleChangeSelectThangLuong(thangHienTai);

@@ -1,6 +1,6 @@
 import { Modal } from "antd";
 import axios from "axios";
-
+import {  } from "react-router-dom";
 // const qs = require("qs");
 
 const http = axios.create({
@@ -22,33 +22,33 @@ const http = axios.create({
 //     }
 //   );
 
+
 http.interceptors.response.use(
   (response) => {
-    // console.log(response);
+    console.log(response);
+    if (!!response.data && !response.data.isAuth) {
+
+    }
     return response;
   },
   (error) => {
-    // console.log(error);
+    console.log(error);
 
     //xu li loi
-    if (
-      !!error.response &&
-      !!error.response.data.error &&
-      !!error.response.data.error.message &&
-      !!error.response.data.error.detail
-    ) {
+    if (!!error.response && !!error.response.data.error && !!error.response.data.error.message && !!error.response.data.error.detail) {
       Modal.error({
         title: error.response.data.error.message,
         content: error.response.data.error.detail,
       });
-    } else if (
-      !!error.response &&
-      !!error.response.data.error &&
-      !!error.response.data.error.message
-    ) {
+    } else if (!!error.response && !!error.response.data.error && !!error.response.data.error.message) {
       Modal.error({
         title: "Lỗi",
         content: error.response.data.error.message,
+      });
+    } else if (!!error.response && !!error.response.data && !!error.response.data.error) {
+      Modal.error({
+        title: "Đã có lỗi xảy ra",
+        content: error.response.data.error,
       });
     } else if (!error.response) {
       Modal.error({

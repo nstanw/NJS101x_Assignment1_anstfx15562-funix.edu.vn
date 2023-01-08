@@ -9,6 +9,7 @@ import NghiPhep from "./components/nghiPhep";
 import EditThongTinCaNhan from "./components/editThongTinCaNhan";
 import TraCuuGioLam from "./components/traCuuGioLam";
 import CovidCaNhan from "./components/covidCaNhan";
+import Login from "./components/login";
 const { Header, Content } = Layout;
 
 const App: React.FC = () => {
@@ -69,7 +70,7 @@ const App: React.FC = () => {
             }}
           >
             <Routes>
-              <Route path="/" element={<DiemDanh />}></Route>
+              <Route path="/login" element={<Login />}></Route>
               <Route path="/diemDanh" element={<DiemDanh />}></Route>
               <Route path="/nghiPhep" element={<NghiPhep />}></Route>
               <Route path="/editThongTinCaNhan" element={<EditThongTinCaNhan />}></Route>
