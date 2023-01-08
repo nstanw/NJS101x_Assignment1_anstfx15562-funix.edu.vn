@@ -4,14 +4,11 @@ import {
   Button,
   Descriptions,
   Form,
-  Image,
   Input,
   message,
   Modal,
 } from "antd";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
 import nhanVienService from "../../services/nhanVienService";
-import { type } from "@testing-library/user-event/dist/type";
 
 type INhanVien = {
   annualLeave: number;
@@ -37,7 +34,6 @@ const EditThongTinCaNhan: React.FC = () => {
       doB: new Date(nhanVienInfo.doB).toLocaleDateString(),
       startDate: new Date(nhanVienInfo.startDate).toLocaleDateString(),
     });
-    console.log(nhanVienInfo);
   };
 
   React.useEffect(() => {
@@ -48,14 +44,11 @@ const EditThongTinCaNhan: React.FC = () => {
     form.resetFields();
     try {
       await nhanVienService.editLinkImage(values.image);
-      console.log(values.image);
-
       getInfo();
       message.success("Đã thay đổi link ảnh thành công");
     } catch (error) {
       console.log("Failed to edit link image:", error);
     }
-    console.log(values);
     setIsModalOpen(false);
   };
 

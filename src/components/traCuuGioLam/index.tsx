@@ -1,4 +1,4 @@
-import { Form, message, Select, Space, Table } from "antd";
+import { Form, Select, Space, Table } from "antd";
 import React from "react";
 import nghiPhepService from "../../services/nghiPhepService";
 import phienLamViecService from "../../services/phienLamViecService";
@@ -36,10 +36,9 @@ type ITraCuuGioLamViecDto = ITraCuuGioLamViec[];
 
 const TraCuuGioLam = () => {
   const [listTraCuuState, setListTraCuuState] = React.useState<any[]>();
-  const [chiTietLuong, setChiTierLuong] = React.useState<any>();
+  const [chiTietLuong, setChiTietLuong] = React.useState<any>();
   const [listFilter, setListFilter] = React.useState<any>(listTraCuuState);
   const [isFilter, setIsFilter] = React.useState(false);
-  const [thongTinNghiPhep, setThongTinNghiPhep] = React.useState<number>();
 
   React.useEffect(() => {
     (async function run() {
@@ -47,8 +46,6 @@ const TraCuuGioLam = () => {
         // get toàn bộ phiên về
         let listTraCuuGioLam = await phienLamViecService.traCuuThongTinGioLamCongTy();
         let thongTinNghiPhepNV = await nghiPhepService.getThongTinNghiPhepNV();
-        setThongTinNghiPhep(thongTinNghiPhepNV);
-
         // get các ngày có trong phiên
         const cacNgayCoTrongPhien: Set<number> = new Set(listTraCuuGioLam.map((date: any) => new Date(date.ngay).getDay()));
 
@@ -56,7 +53,6 @@ const TraCuuGioLam = () => {
         let traCuuThongTin: any[] = [];
         let chiTietLuong: IChiTietLuong;
         let sum; // tổng giờ làm
-        let gioLamThieu;
 
         //#region  Tra cứu giờ làm
 
@@ -103,7 +99,7 @@ const TraCuuGioLam = () => {
               salaryScale: checkActiveCuaPhienNgayCuThe[0].salaryScale,
               luong: checkActiveCuaPhienNgayCuThe[0].salaryScale * 3000000 + (lamThem - (gioLamThieu - thongTinNghiPhepNV.soPhepDangKi)) * 200000,
             };
-            setChiTierLuong(chiTietLuong);
+            setChiTietLuong(chiTietLuong);
             return;
           }
           // dữ liệu render ra UI
@@ -181,37 +177,37 @@ const TraCuuGioLam = () => {
     {
       title: "Tên nhân viên",
       dataIndex: "name",
-      key: "name",
+      key: "namel",
     },
     {
       title: "Hệ số lương",
       dataIndex: "salaryScale",
-      key: "salaryScale ",
+      key: "salaryScalel",
     },
     {
       title: "Số ngày phép đã đăng kí",
       dataIndex: "annualLeave",
-      key: "annualLeave",
+      key: "annualLeavel",
     },
     {
       title: "Số giờ tăng ca",
       dataIndex: "lamThem",
-      key: "lamThem",
+      key: "lamTheml",
     },
     {
       title: "Số giờ làm thiếu",
       dataIndex: "gioLamThieu",
-      key: "gioLamThieu",
+      key: "gioLamThieul",
     },
   ];
 
-  const onFinish = async (values: any) => {
-    console.log(values);
-  };
-
-  const handleChangeSelectThangLuong = (value: string) => {
-    
-    console.log(`selected ${value}`);
+  const handleChangeSelectThangLuong = async (value: any) => {
+    try {
+      let luongThang = await phienLamViecService.getLuongTheoThang(parseInt(value));
+      setChiTietLuong(luongThang);
+    } catch (error) {
+      console.log("Failed:", error);
+    }
   };
 
   return (
@@ -221,32 +217,32 @@ const TraCuuGioLam = () => {
           const listFilter = listTraCuuState?.filter((d) => d.active === active);
           setListFilter(listFilter);
           setIsFilter(true);
-          console.log("listDangLam", listFilter);
         }}
         onCandle={() => setIsFilter(false)}
       />
       {!isFilter ? (
-        <Form {...layout} name="control-hooks" onFinish={onFinish}>
+        <Form {...layout} name="control-hooks">
           <h2>Danh sách giờ đã làm</h2>
           <Table
-            dataSource={listTraCuuState}
+            dataSource={listTraCuuState ? listTraCuuState.map((d : any, index: any) => ({...d, key: index})): []}
             columns={[
               ...columnsTableListPhien,
               {
                 title: "Trạng thái",
                 dataIndex: "active",
+                key: "active",
                 render: (value: boolean, record: any, index) => {
-                  return <span key={index}>{value ? "Đang làm" : "Không làm"}</span>;
+                  return <span key={value.toString() + index.toString()}>{value ? "Đang làm" : "Không làm"}</span>;
                 },
               },
             ]}
           />
         </Form>
       ) : (
-        <Form {...layout} name="control-hooks" onFinish={onFinish}>
+        <Form {...layout} name="control-hooks">
           <h2>Danh sách giờ đã làm</h2>
           <Table
-            dataSource={listFilter}
+            dataSource={listFilter.map((d : any, index: any) => ({...d, key: index}))}
             columns={[
               ...columnsTableListPhien,
               {
@@ -260,9 +256,10 @@ const TraCuuGioLam = () => {
           />
         </Form>
       )}
-      <Form {...layout} name="control-hooks" onFinish={onFinish}>
+      <Form {...layout} name="control-hooks">
         <h2>Lương = salaryScale * 3000000 + (overTime - số giờ làm thiếu) * 200000</h2>
-        <span > Chọn tháng xem lương: < Space/>
+        <span>
+          Chọn tháng xem lương: <Space />
           <Select
             defaultValue={`${new Date(Date.now()).getMonth() + 1}`}
             style={{ width: 120 }}
@@ -271,74 +268,75 @@ const TraCuuGioLam = () => {
               {
                 value: "1",
                 label: "Tháng 1",
-                key: "1",
+                key: "thang1",
               },
               {
                 value: "2",
                 label: "Tháng 2",
-                key: "2",
+                key: "thang2",
               },
               {
                 value: "3",
                 label: "Tháng 3",
-                key: "3",
+                key: "thang3",
               },
               {
                 value: "4",
                 label: "Tháng 4",
-                key: "4",
+                key: "thang4",
               },
               {
                 value: "5",
                 label: "Tháng 5",
-                key: "5",
+                key: "thang5",
               },
               {
                 value: "6",
                 label: "Tháng 6",
-                key: "6",
+                key: "thang6",
               },
               {
                 value: "7",
                 label: "Tháng 7",
-                key: "7",
+                key: "thang7",
               },
               {
                 value: "8",
                 label: "Tháng 8",
-                key: "8",
+                key: "thang8",
               },
               {
                 value: "9",
                 label: "Tháng 9",
-                key: "9",
+                key: "thang9",
               },
               {
                 value: "10",
                 label: "Tháng 10",
-                key: "10",
+                key: "thang10",
               },
               {
                 value: "11",
                 label: "Tháng 11",
-                key: "11",
+                key: "thang11",
               },
               {
                 value: "12",
                 label: "Tháng 12",
-                key: "12",
+                key: "thang12",
               },
             ]}
           />
         </span>
         <Table
-        style={{padding: 10}}
-          dataSource={[chiTietLuong]}
+          style={{ padding: 10 }}
+          dataSource={[chiTietLuong].map((d : any, index: any) => ({...d, key: index}))}
           columns={[
             ...columnsChiTietLuong,
             {
               title: "Lương",
               dataIndex: "luong",
+              key: "luongl",
             },
           ]}
         />

@@ -14,7 +14,7 @@ const { Header, Content } = Layout;
 const App: React.FC = () => {
   const [current, setCurrent] = useState("diemDanhKetThucLam");
   const onClick: MenuProps["onClick"] = (e) => {
-    console.log("click ", e);
+    // console.log("click ", e);
     setCurrent(e.key);
   };
   const {
@@ -22,10 +22,6 @@ const App: React.FC = () => {
   } = theme.useToken();
 
   const items: MenuProps["items"] = [
-    // {
-    //   label: <img src="/favicon.ico" alt="icon" />,
-    //   key: "icon",
-    // },
     {
       label: (
         <Link to="/diemDanh">Điểm danh bắt đầu/kết thúc làm</Link>

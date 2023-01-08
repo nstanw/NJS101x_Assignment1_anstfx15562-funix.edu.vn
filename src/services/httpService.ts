@@ -24,11 +24,11 @@ const http = axios.create({
 
 http.interceptors.response.use(
   (response) => {
-    console.log(response);
+    // console.log(response);
     return response;
   },
   (error) => {
-    console.log(error);
+    // console.log(error);
 
     //xu li loi
     if (

@@ -30,13 +30,13 @@ const CovidCaNhan = () => {
             ngayTiemVaccine2: values.ngayTiemVaccine2.label,
             tenVaccine2: values.tenVaccine2,
           };
-          let dangKiThongTinVaccin = await covidService.dangKiThongTinVaccin(input);
+          await covidService.dangKiThongTinVaccin(input);
           message.success('Đăng kí thông tin tiêm vaccine thành công');
         }
 
         //kiểm tra dữ liệu và update csdl dangKiDuongTinhCovid
         if (values.duongTinh && values.ngayKhaiBaoCovid) {
-          let dangKiDuongTinhCovid = await covidService.dangKiDuongTinhCovid(
+           await covidService.dangKiDuongTinhCovid(
             values.duongTinh.value,
             values.ngayKhaiBaoCovid
           );

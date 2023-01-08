@@ -14,11 +14,9 @@ const NghiPhep: React.FC = () => {
     (async function run() {
       let PhepConLai = await nghiPhepService.getNgayPhepConLai();
       setSoNgayPhepConLai(PhepConLai.soNgayPhepConLai);
-      console.log(PhepConLai);
     })();
   }, [soNgayPhepConLai, soNgayPhepDangKi, isChange]);
   const onFinish = async (fieldsValue: any) => {
-    
     try {
       // Should format date value before submit.
       const rangeValue = fieldsValue["range-picker"];
@@ -32,7 +30,7 @@ const NghiPhep: React.FC = () => {
         if (soNgayPhepConLai && values.soNgayDangKiNghi > soNgayPhepConLai) {
           return message.error("Số ngày phép đăng kí phải nhỏ hơn số ngày phép còn lại");
         }
-        if (soNgayPhepConLai &&soNgayPhepConLai < 0) {
+        if (soNgayPhepConLai && soNgayPhepConLai < 0) {
           return message.error("Bạn đã hết số phép quy định");
         }
         const input: IDangKiNghiPhepInput = {
@@ -41,12 +39,10 @@ const NghiPhep: React.FC = () => {
           lyDo: values.lyDo,
         };
         setSoNgayPhepDangKi(values.soNgayDangKiNghi);
-        let dangKiNghiPhep = await nghiPhepService.dangKiNghiPhep(input);
+        await nghiPhepService.dangKiNghiPhep(input);
         message.success("Đăng kí phép thành công");
         setIsChange(!isChange);
 
-        console.log("dangKiNghiPhep:", dangKiNghiPhep);
-        console.log("Success:", values);
         return;
       }
 
@@ -69,13 +65,11 @@ const NghiPhep: React.FC = () => {
       if (soNgayPhepConLai && values.soNgayDangKiNghi > soNgayPhepConLai) {
         return message.error("Số ngày phép đăng kí phải nhỏ hơn số ngày phép còn lại");
       }
-      if (soNgayPhepConLai &&soNgayPhepConLai < 0) {
+      if (soNgayPhepConLai && soNgayPhepConLai < 0) {
         return message.error("Bạn đã hết số phép quy định");
       }
-      let dangKiNghiPhep = await nghiPhepService.dangKiNghiPhep(input);
+       await nghiPhepService.dangKiNghiPhep(input);
       setIsChange(!isChange);
-      console.log("dangKiNghiPhep:", dangKiNghiPhep);
-      console.log("Success:", values);
       message.success("Đăng kí phép thành công");
       return;
     } catch (error) {
@@ -102,7 +96,6 @@ const NghiPhep: React.FC = () => {
 
   const onChangeModeNghiPhep = (checked: boolean) => {
     setNghiNhieuNgay(!nghiNhieuNgay);
-    console.log(`switch to ${checked}`);
   };
 
   return (

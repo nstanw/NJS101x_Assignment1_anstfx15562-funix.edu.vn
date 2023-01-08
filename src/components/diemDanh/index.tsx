@@ -106,14 +106,15 @@ const DiemDanh: React.FC = () => {
       {isActive ? (
         <Table
           pagination={false}
-          dataSource={phienLamViecHienTai}
+          dataSource={phienLamViecHienTai.map((d : any, index: any) => ({...d, key: index}))}
           columns={[
             ...columnsTablePhienHienTai,
             {
               title: "Trạng thái",
               dataIndex: "active",
+              key: "active",
               render: (value: boolean, record: any, index) => {
-                return <span key={index + value.toString()}>{value ? "Đang làm" : "Không làm"}</span>;
+                return <span>{value ? "Đang làm" : "Không làm"}</span>;
               },
             },
           ]}
@@ -155,7 +156,7 @@ const DiemDanh: React.FC = () => {
       </Form.Item>
       {listPhienLamViec.length > 0 && (
         <Table
-          dataSource={listPhienLamViec}
+          dataSource={listPhienLamViec.map((d : any, index: any) => ({...d, key: index}))}
           columns={[
             ...columnsTableListPhien,
             {

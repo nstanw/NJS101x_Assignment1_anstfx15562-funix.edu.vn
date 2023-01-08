@@ -10,10 +10,6 @@ class PhienLamViecService {
         let result = await  http.get("/phienLamViec/traCuuThongTinGioLamCongTy");
         return result.data;
     }
-    public async getLuongTheoThang(thang : number) {
-        let result = await  http.get("/phienLamViec/getLuongTheoThang");
-        return result.data;
-    }
 
     public async addPhienLamViec(noiLam: string) {
         let result = await  http.post("/phienLamViec/addPhienLamViec",{noiLam: noiLam});
@@ -21,8 +17,12 @@ class PhienLamViecService {
     }
    
     public async ketThucPhienLamViec() {
-        console.log(process.env.REACT_APP_REMOTE_SERVICE_BASE_URL);
         let result = await  http.patch("/phienLamViec/ketThucPhienLamViec");
+        return result.data;
+    }
+  
+    public async getLuongTheoThang(thang: number) {
+        let result = await  http.get("/phienLamViec/getLuongTheoThang", { params: { thang: thang } });
         return result.data;
     }
 

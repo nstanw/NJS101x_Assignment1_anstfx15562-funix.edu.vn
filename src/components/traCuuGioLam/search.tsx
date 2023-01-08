@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, Row, Col, Form, Input, Select } from "antd";
+import { Button, Row, Col, Form, Select } from "antd";
 import { useForm } from "antd/lib/form/Form";
 
 const layout = {
@@ -11,20 +11,18 @@ const { Option } = Select;
 export interface IFilterDto {
   property: string;
   value: any;
- operator: string;
+  operator: string;
 }
 
 interface ISearch {
-  handleSubmit: (active : boolean, q: any) => void;
+  handleSubmit: (active: boolean, q: any) => void;
   onCandle: () => void;
 }
 
-const Search : React.FC<ISearch> = ({handleSubmit,onCandle}) => {
+const Search: React.FC<ISearch> = ({ handleSubmit, onCandle }) => {
   const [form] = useForm();
 
   const onFinish = async (values: any) => {
-   
-    console.log(values);
     await handleSubmit(values.active, values.q);
   };
   const resetForm = async () => {
