@@ -1,5 +1,4 @@
 import nhanVienModel from "../Models/nhanVienModel";
-import { isNonNullChain } from "typescript";
 import phienLamViecModel from "../Models/phienLamViecModel";
 import { getHouseBetweenTwoDate } from "../util/getHouseBetweenTwoDate";
 import nghiPhepModel from "../Models/nghiPhepModel";
@@ -57,7 +56,6 @@ export default new (class PhienLamViec {
     ];
     return res.send(result);
   }
-
   //POST thêm phiên làm việc
   async addPhienLamViec(req, res, next) {
     // input noiLam: string
@@ -149,7 +147,7 @@ export default new (class PhienLamViec {
       return res.json(error);
     }
   }
-
+  //GET lương tháng
   async getLuongTheoThang(req, res, next) {
     try {
       let listGioLamCongTy = await phienLamViecModel.find({
@@ -159,7 +157,7 @@ export default new (class PhienLamViec {
       let salaryScale = await nhanVienModel.findOne({ gmail: "admin@admin.com" });
       let resultSalaryScale = salaryScale.salaryScale;
 
-      let listTheoThang = listGioLamCongTy.filter((d) => new Date(d.ketThuc).getMonth() + 1 === req.body.thang);
+      let listTheoThang = listGioLamCongTy.filter((d) => new Date(d.ketThuc).getMonth() + 1 === parseInt(req.query.thang));
       let thongTinNghiPhepNV = await nghiPhepModel.findOne({ gmail: "admin@admin.com" });
 
       let lamThem: number;
@@ -178,12 +176,12 @@ export default new (class PhienLamViec {
         name: listTheoThang[0].name,
         annualLeave: thongTinNghiPhepNV.soPhepDangKi,
         lamThem: lamThem,
-        gioLamThieu: gioLamThieu - thongTinNghiPhepNV.soPhepDangKi,
+        gioLamThieu: Math.abs(gioLamThieu - thongTinNghiPhepNV.soPhepDangKi),
         thoiGianLam: Math.round(sum * 100) / 100,
         salaryScale: resultSalaryScale,
         luong: resultSalaryScale * 3000000 + (lamThem - (gioLamThieu - thongTinNghiPhepNV.soPhepDangKi)) * 200000,
       };
-      
+
       console.log(chiTietLuong);
       return res.json(chiTietLuong);
     } catch (error) {
