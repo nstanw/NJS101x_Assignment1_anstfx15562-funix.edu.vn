@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./App.css";
 import { Layout, Menu, theme } from "antd";
-import Footer from "./components/Footer";
+// import Footer from "./components/Footer";
 import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
 import DiemDanh from "./components/diemDanh";
 import type { MenuProps } from "antd";
@@ -78,7 +78,7 @@ const App: React.FC = () => {
             </Routes>
           </Content>
 
-          <Footer />
+          {/* <Footer /> */}
         </Layout>
       </Router>
     </div>

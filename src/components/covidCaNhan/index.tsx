@@ -1,5 +1,5 @@
-import { Button, Form, Input, message, Select, Tabs } from 'antd';
 import React from 'react';
+import { Button, Form, Input, message, Select, Tabs } from 'antd';
 import covidService, { IDangKiThongTinVaccineInput } from '../../services/covidService';
 const { Option } = Select;
 
@@ -10,7 +10,7 @@ const CovidCaNhan = () => {
       try {
         //kiểm tra dữ liệu và update csdl đăng kí thân nhiệt
         if (values.ngayGioDangKiThanNhiet && values.nhietDo) {
-          let dangKiThanNhiet = await covidService.dangKiThongTinThanNhiet(
+           await covidService.dangKiThongTinThanNhiet(
             values.ngayGioDangKiThanNhiet,
             values.nhietDo
           );
