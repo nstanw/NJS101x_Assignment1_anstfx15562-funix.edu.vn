@@ -27,6 +27,8 @@ type ITraCuuGioLamViecDto = ITraCuuGioLamViec[];
 export default new (class PhienLamViec {
   //GET active
   async getActive(req, res) {
+    console.log(req.session);
+    
     let name = "admin";
     let checkActive = await phienLamViecModel.findOne({ active: true });
     console.log(checkActive);
