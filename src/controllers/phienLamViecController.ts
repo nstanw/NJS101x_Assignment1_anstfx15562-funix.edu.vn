@@ -153,11 +153,11 @@ export default new (class PhienLamViec {
 
   //GET danh sach gio đã làm nv
   async traCuuThongTinGioLamNhanVien(req, res) {
-    console.log(req.body.idNhanVien);
+    console.log(req.query.idNhanVien);
     
     try {
       let listGioLamCongTy = await phienLamViecModel.find({
-        idNhanVien: req.body.idNhanVien,
+        idNhanVien: req.query.idNhanVien,
       });
 
       let salaryScale = await nhanVienModel.findOne({});
