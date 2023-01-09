@@ -3,6 +3,7 @@ import React from "react";
 import phienLamViecService from "../../services/phienLamViecService";
 import Search from "./search";
 import { useNavigate } from "react-router-dom";
+import quanLyService from "../../services/quanLyService";
 
 const layout = {
   labelCol: { span: 8 },
@@ -25,23 +26,34 @@ interface ITraCuuGioLamViec {
 }
 type ITraCuuGioLamViecDto = ITraCuuGioLamViec[];
 
-const TraCuuGioLam = () => {
+const QuanLyGioLam = () => {
   const [listTraCuuState, setListTraCuuState] = React.useState<any[]>();
   const [chiTietLuong, setChiTietLuong] = React.useState<any>();
   const [showLuong, setShowLuong] = React.useState(false);
   const [listFilter, setListFilter] = React.useState<any>(listTraCuuState);
   const [isFilter, setIsFilter] = React.useState(false);
+  const [optioneNhanVien, setOptioneNhanVien]: any[] = React.useState();
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    (async function run() {
+      let getNhanVienMinhQuanLy: any[] = await quanLyService.getNhanVienMinhQuanLy();
+      let optioneNhanVien = getNhanVienMinhQuanLy.map((nhanVien) => ({ label: nhanVien.name, key: nhanVien._id, value: nhanVien.idNhanVien }));
+      console.log("optioneNhanVien", optioneNhanVien);
+
+      setOptioneNhanVien(optioneNhanVien);
+    })();
+  }, []);
 
   React.useEffect(() => {
     (async function run() {
       try {
         // get toàn bộ phiên về
         let listTraCuuGioLam = await phienLamViecService.traCuuThongTinGioLamCongTy();
-        if (!listTraCuuGioLam.isAuth) {
-          message.error("Vui lòng đăng nhập!");
-          return navigate("/login");
-        }
+        // if (!listTraCuuGioLam.isAuth) {
+        //   message.error("Vui lòng đăng nhập!");
+        //   return navigate("/login");
+        // }
         // get các ngày có trong phiên
         const cacNgayCoTrongPhien: Set<number> = new Set(listTraCuuGioLam.map((date: any) => new Date(date.ngay).getDay()));
 
@@ -178,17 +190,49 @@ const TraCuuGioLam = () => {
 
   const handleChangeSelectThangLuong = async (value: any) => {
     try {
-      let luongThang = await phienLamViecService.getLuongTheoThang(parseInt(value));
-      setChiTietLuong(luongThang);
+      console.log(value);
     } catch (error) {
       console.log("Failed:", error);
-
+    }
+  };
+  const handleChangeSelectNhanVien = async (value: any) => {
+    try {
+      console.log(value);
+     let gioLamNhanVien =  await phienLamViecService.traCuuThongTinGioLamNhanVien(value);
+      console.log("gioLamNhanVien",gioLamNhanVien);
       
+      
+    } catch (error) {
+      console.log("Failed:", error);
     }
   };
 
   return (
     <div className="traCuuGioLam">
+      <Form {...layout} name="control-hooks">
+        <span>
+          Chọn nhân viên: <Space />
+          <Select
+            placeholder="Chọn nhân viên muốn kiểm tra"
+            style={{ width: 120 }}
+            onChange={handleChangeSelectNhanVien}
+            options={optioneNhanVien ? optioneNhanVien.map((d: any) => ({ key: d.key, value: d.value, label: d.label })) : []}
+          />
+        </span>
+        <Table
+          style={{ padding: 10 }}
+          dataSource={[chiTietLuong].map((d: any, index: any) => ({ ...d, key: index }))}
+          columns={[
+            ...columnsChiTietLuong,
+            {
+              title: "Lương",
+              dataIndex: "luong",
+              key: "luongl",
+            },
+          ]}
+        />
+      </Form>
+
       <Search
         handleSubmit={(active, q) => {
           const listFilter = listTraCuuState?.filter((d) => d.active === active);
@@ -334,4 +378,4 @@ const TraCuuGioLam = () => {
   );
 };
 
-export default TraCuuGioLam;
+export default QuanLyGioLam;

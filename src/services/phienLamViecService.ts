@@ -10,6 +10,11 @@ class PhienLamViecService {
         let result = await  http.get("/phienLamViec/traCuuThongTinGioLamCongTy");
         return result.data;
     }
+  
+    public async traCuuThongTinGioLamNhanVien(idNhanVien: string) {
+        let result = await  http.get("/phienLamViec/traCuuThongTinGioLamNhanVien", { params: { idNhanVien: idNhanVien } });
+        return result.data;
+    }
 
     public async addPhienLamViec(noiLam: string) {
         let result = await  http.post("/phienLamViec/addPhienLamViec",{noiLam: noiLam});

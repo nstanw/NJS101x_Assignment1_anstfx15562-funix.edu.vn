@@ -25,10 +25,10 @@ const DiemDanh: React.FC = () => {
   React.useEffect(() => {
     (async function run() {
       const result = await phienLamViecService.getActive();
-      if (!result.isAuth) {
-        message.error("Vui lòng đăng nhập!");
-        return navigate("/login");
-      }
+      // if (!result.isAuth) {
+      //   message.error("Vui lòng đăng nhập!");
+      //   return navigate("/login");
+      // }
       setPhienLamViecHienTai(result);
       if (result[0].active && result[0].name) {
         setName(result[0].name);
