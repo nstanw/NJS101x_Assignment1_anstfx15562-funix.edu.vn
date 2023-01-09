@@ -4,14 +4,14 @@ import nhanVienController from "../Controllers/nhanVienController";
 
 function Router(app) {
 
-  app.get("/getNhanVien", isAuth.isAuth, nhanVienController.getNhanVien)
-  app.post("/addNhanVien",isAuth.isAuth,  nhanVienController.addNhanVien)
-  app.patch("/editLinkImage",isAuth.isAuth,  nhanVienController.editLinkImage)
+  app.get("/getNhanVien",  nhanVienController.getNhanVien)
+  app.post("/addNhanVien",  nhanVienController.addNhanVien)
+  app.patch("/editLinkImage",  nhanVienController.editLinkImage)
 
   // covid
-  app.patch("/covid/dangKiThongTinThanNhiet", isAuth.isAuth, covidController.dangKiThongTinThanNhiet)
-  app.patch("/covid/dangKiThongTinVaccin", isAuth.isAuth, covidController.dangKiThongTinVaccin)
-  app.patch("/covid/dangKiDuongTinhCovid", isAuth.isAuth, covidController.dangKiDuongTinhCovid)
+  app.patch("/covid/dangKiThongTinThanNhiet",  covidController.dangKiThongTinThanNhiet)
+  app.patch("/covid/dangKiThongTinVaccin",  covidController.dangKiThongTinVaccin)
+  app.patch("/covid/dangKiDuongTinhCovid",  covidController.dangKiDuongTinhCovid)
 
 }
 
