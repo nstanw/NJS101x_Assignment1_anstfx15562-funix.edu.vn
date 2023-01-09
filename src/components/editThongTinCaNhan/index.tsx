@@ -1,7 +1,9 @@
-import React, { useState } from "react";
-import { Avatar, Button, Descriptions, Form, Input, message, Modal } from "antd";
-import nhanVienService from "../../services/nhanVienService";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { Avatar, Button, Descriptions, Form, Input, message, Modal, UploadFile } from 'antd';
+import nhanVienService from '../../services/nhanVienService';
+import { useNavigate } from 'react-router-dom';
+import Upload from 'antd/es/upload/Upload';
+import { RcFile, UploadChangeParam } from 'antd/lib/upload';
 
 type INhanVien = {
   annualLeave: number;
@@ -20,13 +22,16 @@ const EditThongTinCaNhan: React.FC = () => {
   const [nhanVien, setNhanVien] = useState<INhanVien>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
 
   const getInfo = async function run() {
     let nhanVienInfo = await nhanVienService.getNhanVien();
-    if (!nhanVienInfo.isAuth) {
-      message.error("Vui lòng đăng nhập!");
-      return navigate("/login");
-    }
+    // if (!nhanVienInfo.isAuth) {
+    //   message.error("Vui lòng đăng nhập!");
+    //   return navigate("/login");
+    // }
     setNhanVien({
       ...nhanVienInfo,
       doB: new Date(nhanVienInfo.doB).toLocaleDateString(),
@@ -43,24 +48,91 @@ const EditThongTinCaNhan: React.FC = () => {
     try {
       await nhanVienService.editLinkImage(values.image);
       getInfo();
-      message.success("Đã thay đổi link ảnh thành công");
+      message.success('Đã thay đổi link ảnh thành công');
     } catch (error) {
-      console.log("Failed to edit link image:", error);
+      console.log('Failed to edit link image:', error);
     }
     setIsModalOpen(false);
   };
+
+  const handleUpload = (info: UploadChangeParam) => {
+    if (info.file.status !== 'uploading') {
+      console.log(info.file, info.fileList);
+    }
+    if (info.file.status === 'done') {
+      message.success(`${info.file.name} file uploaded successfully`);
+    } else if (info.file.status === 'error') {
+      message.error(`${info.file.name} file upload failed.`);
+    }
+  };
+
+  const handlePreview = async (file: UploadFile) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj as RcFile);
+    }
+
+    setPreviewImage(file.url || (file.preview as string));
+    setPreviewOpen(true);
+    setPreviewTitle(file.name || file.url!.substring(file.url!.lastIndexOf('/') + 1));
+  };
+
+  const handleCancel = () => setPreviewOpen(false);
+
+  const getBase64 = (file: RcFile): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
 
   return (
     <>
       {nhanVien && (
         <>
-          <Modal title="Thay đổi hình ảnh" open={isModalOpen} footer={false} onCancel={() => setIsModalOpen(false)}>
+          <Modal
+            open={previewOpen}
+            title={previewTitle}
+            footer={null}
+            // onCancel={handleCancel}
+          >
+            <img
+              alt='example'
+              style={{ width: '100%' }}
+              src={previewImage}
+            />
+          </Modal>
+          <Modal
+            title='Thay đổi hình ảnh'
+            open={isModalOpen}
+            footer={false}
+            onCancel={() => setIsModalOpen(false)}
+          >
             <Form onFinish={onFinish}>
-              <Form.Item name="image" label="Nhập đường dẫn hình ảnh">
+              <Form.Item
+                name='image'
+                label='Nhập đường dẫn hình ảnh'
+              >
                 <Input allowClear />
               </Form.Item>
+              <Form.Item
+                name='upload'
+                label='Chọn đường dẫn ảnh'
+              >
+                <Upload
+                  action='/upload'
+                  onChange={handleUpload}
+                
+                  accept='image/*'
+                >
+                  <button>Upload Image</button>
+                </Upload>
+              </Form.Item>
               <Form.Item wrapperCol={{ offset: 20, span: 4 }}>
-                <Button danger htmlType="submit">
+                <Button
+                  danger
+                  htmlType='submit'
+                >
                   Submit
                 </Button>
               </Form.Item>
@@ -72,14 +144,14 @@ const EditThongTinCaNhan: React.FC = () => {
             onClick={() => setIsModalOpen(true)}
             src={nhanVien.image}
           />
-          <Descriptions title="User Info">
-            <Descriptions.Item label="Id">{nhanVien?.gmail}</Descriptions.Item>
-            <Descriptions.Item label="name">{nhanVien?.name}</Descriptions.Item>
-            <Descriptions.Item label="doB">{nhanVien?.doB}</Descriptions.Item>
-            <Descriptions.Item label="salaryScale">{nhanVien?.salaryScale}</Descriptions.Item>
-            <Descriptions.Item label="startDate">{nhanVien?.startDate}</Descriptions.Item>
-            <Descriptions.Item label="department">{nhanVien?.department}</Descriptions.Item>
-            <Descriptions.Item label="annualLeave">{nhanVien?.annualLeave}</Descriptions.Item>
+          <Descriptions title='User Info'>
+            <Descriptions.Item label='Id'>{nhanVien?.gmail}</Descriptions.Item>
+            <Descriptions.Item label='name'>{nhanVien?.name}</Descriptions.Item>
+            <Descriptions.Item label='doB'>{nhanVien?.doB}</Descriptions.Item>
+            <Descriptions.Item label='salaryScale'>{nhanVien?.salaryScale}</Descriptions.Item>
+            <Descriptions.Item label='startDate'>{nhanVien?.startDate}</Descriptions.Item>
+            <Descriptions.Item label='department'>{nhanVien?.department}</Descriptions.Item>
+            <Descriptions.Item label='annualLeave'>{nhanVien?.annualLeave}</Descriptions.Item>
           </Descriptions>
         </>
       )}

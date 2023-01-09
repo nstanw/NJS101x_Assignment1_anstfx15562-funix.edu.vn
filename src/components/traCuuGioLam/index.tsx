@@ -38,10 +38,10 @@ const TraCuuGioLam = () => {
       try {
         // get toàn bộ phiên về
         let listTraCuuGioLam = await phienLamViecService.traCuuThongTinGioLamCongTy();
-        if (!listTraCuuGioLam.isAuth) {
-          message.error("Vui lòng đăng nhập!");
-          return navigate("/login");
-        }
+        // if (!listTraCuuGioLam.isAuth) {
+        //   message.error("Vui lòng đăng nhập!");
+        //   return navigate("/login");
+        // }
         // get các ngày có trong phiên
         const cacNgayCoTrongPhien: Set<number> = new Set(listTraCuuGioLam.map((date: any) => new Date(date.ngay).getDay()));
 

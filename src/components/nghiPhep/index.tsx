@@ -15,10 +15,10 @@ const NghiPhep: React.FC = () => {
   React.useEffect(() => {
     (async function run() {
       let PhepConLai = await nghiPhepService.getNgayPhepConLai();
-      if (!PhepConLai.isAuth) {
-        message.error("Vui lòng đăng nhập!");
-        return navigate("/login");
-      }
+      // if (!PhepConLai.isAuth) {
+      //   message.error("Vui lòng đăng nhập!");
+      //   return navigate("/login");
+      // }
       setSoNgayPhepConLai(PhepConLai.soNgayPhepConLai);
     })();
   }, [soNgayPhepConLai, soNgayPhepDangKi, isChange]);
