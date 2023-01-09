@@ -23,29 +23,36 @@ export default new (class UserController {
   }
 
   async login(req, res, next) {
-    console.log("req.bod",req.body);
-    
     try {
       const { username, password } = req.body;
       let user = await userModel.findOne({ username });
-      console.log(user);
 
       if (!user) {
         return res.status(400).json({ error: "User not found" });
       }
+
       //check password
       const isMatch = await bcryptjs.compare(password, user.password);
       if (!isMatch) {
         return res.status(400).json({ error: "Password not match" });
       }
-      //login thành công
-      req.session.user = user;
-      req.session.isLoggedIn = true;
-      console.log(req.session);
-      return req.session.save(() => {
-        res.json({ mess: "Đăng nhập thành công" });
-        // res.redirect("/");
+
+      req.session.regenerate(function (err) {
+        if (err) next(err);
+
+        //login thành công
+        req.session.user = user;
+        req.session.isLoggedIn = true;
+
+        // save the session before redirection to ensure page
+        // load does not happen before session is saved
+        req.session.save(function (err) {
+          if (err) return next(err);
+          res.json({ mess: "Đăng nhập thành công" });
+        });
       });
+
+      return;
     } catch (error) {
       return res.status(500).send(error);
     }
@@ -53,16 +60,15 @@ export default new (class UserController {
 
   async logout(req, res) {
     try {
-      console.log( req.session);
+      console.log(req.session);
       if (req.session) {
         //delete session
         req.session.destroy((err) => {
           if (err) {
             return res.status(500).json(err);
           }
-          console.log( req.session);
+          console.log(req.session);
           return res.json({ destroy: true });
-          
         });
       }
     } catch (error) {}

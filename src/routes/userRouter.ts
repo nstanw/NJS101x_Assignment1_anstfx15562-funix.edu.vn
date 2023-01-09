@@ -1,5 +1,4 @@
 import userControlller from "../Controllers/userControlller";
-import * as passport from "passport";
 
 function Router(app) {
   app.post("/user/dangKi", userControlller.dangKi);

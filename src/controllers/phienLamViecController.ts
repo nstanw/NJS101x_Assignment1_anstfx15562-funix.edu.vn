@@ -21,6 +21,7 @@ interface ITraCuuGioLamViec {
   ketThuc: Date | null;
   thoiGianLam: Number | null;
   active: Boolean;
+  idNhanVien?: String;
 }
 type ITraCuuGioLamViecDto = ITraCuuGioLamViec[];
 
@@ -28,7 +29,7 @@ export default new (class PhienLamViec {
   //GET active
   async getActive(req, res) {
     console.log(req.session);
-    
+
     let name = "admin";
     let checkActive = await phienLamViecModel.findOne({ active: true });
     console.log(checkActive);
@@ -149,6 +150,141 @@ export default new (class PhienLamViec {
       return res.json(error);
     }
   }
+
+  //GET danh sach gio đã làm nv
+  async traCuuThongTinGioLamNhanVien(req, res) {
+    console.log(req.body.idNhanVien);
+    
+    try {
+      let listGioLamCongTy = await phienLamViecModel.find({
+        idNhanVien: req.body.idNhanVien,
+      });
+
+      let salaryScale = await nhanVienModel.findOne({});
+      let resultSalaryScale = salaryScale.salaryScale;
+
+      let result: ITraCuuGioLamViecDto = listGioLamCongTy.map((phien) => ({
+        ngay: phien.batDau,
+        name: phien.name,
+        noiLam: phien.noiLam,
+        annualLeave: null,
+        batDau: phien.batDau,
+        ketThuc: phien.ketThuc,
+        thoiGianLam: phien.thoiGianLam,
+        active: phien.active,
+        salaryScale: resultSalaryScale,
+      }));
+      console.log(result);
+      return res.json(result);
+    } catch (error) {
+      return res.json(error);
+    }
+  }
+
+  //GET danh sach gio đã làm nhân viên theo ngày
+  async traCuuThongTinGioLamNhanVienTheoNgay(req, res) {
+    try {
+      let salaryScale = await nhanVienModel.findOne({});
+      let resultSalaryScale = salaryScale.salaryScale;
+      // lấy danh sách các phiên đã làm của nhân viên theo mã nhân viên
+      let listGioLamCongTy = await phienLamViecModel.find({
+        idNhanVien: req.body.idNhanVien,
+      });
+
+      let thongTinNghiPhepNV = await nghiPhepModel.findOne({ idNhanVien: req.body.idNhanVien });
+
+      //gom theo ngày. ngày tính theo ngày bắt đầu phiên
+      const cacNgayCoTrongPhien: Set<number> = new Set(listGioLamCongTy.map((d: any) => new Date(d.batDau).getDay() + 1));
+
+      let traCuuThongTin: any[] = [];
+      let sum; // tổng giờ làm
+      let lamThem: number;
+      let gioLamThieu: number;
+      //vào từng ngày để tính tổng thời gian làm của ngày đó
+      cacNgayCoTrongPhien.forEach((ngay) => {
+        const listPhienCuaNgayCuThe = listGioLamCongTy.filter((date: any) => new Date(date.batDau).getDay() === ngay);
+
+        // Kiểm tra  trong ngày còn đang làm hay không
+        let checkActiveCuaPhienNgayCuThe = listPhienCuaNgayCuThe.filter((phien: any) => phien.active === false);
+
+        //Nếu không có phiên nào hoạt động
+        if (listPhienCuaNgayCuThe.length === checkActiveCuaPhienNgayCuThe.length) {
+          // nếu phiên cuối thì tính thời gian làm trong ngày
+          const thoiGianLamTrongNgay = listPhienCuaNgayCuThe.map((thoiGianLam) => thoiGianLam.thoiGianLam);
+          sum = thoiGianLamTrongNgay.reduce((accumulator: number, currentValue: any) => accumulator + currentValue, 0);
+
+          if (sum && sum > 8) {
+            lamThem = Math.round(sum * 100) / 100 - 8;
+            gioLamThieu = 0;
+          } else {
+            lamThem = 0;
+            gioLamThieu = 8 - Math.round(sum * 100) / 100;
+          }
+
+          let lamThemGio = sum < 8 ? 0 : sum - 8;
+          // dữ liệu render ra UI
+          let rowTraCuuGioLamViec = {
+            ...checkActiveCuaPhienNgayCuThe[0],
+            ketThuc: checkActiveCuaPhienNgayCuThe[checkActiveCuaPhienNgayCuThe.length - 1].ketThuc,
+            lamThem: lamThemGio,
+            gioLamThieu: Math.abs(gioLamThieu - thongTinNghiPhepNV.soPhepDangKi),
+            thoiGianLam: Math.round(sum * 100) / 100,
+            salaryScale: resultSalaryScale,
+            luong: resultSalaryScale * 3000000 + (lamThem - gioLamThieu * 200000),
+          };
+          traCuuThongTin.push(rowTraCuuGioLamViec);
+        }
+      });
+
+
+
+      let result = traCuuThongTin.map((phien) => ({
+
+        ngay: phien.batDau,
+        name: phien.name,
+        batDau: phien.batDau,
+        ketThuc: phien.ketThuc,
+        noiLam: phien.noiLam,
+        gioPhepDangKi: thongTinNghiPhepNV.soPhepDangKi,
+        thoiGianLam: phien.thoiGianLam,
+        salaryScale: resultSalaryScale,
+      }));
+      console.log(result);
+      return res.json(result);
+    } catch (error) {
+      return res.json(error);
+    }
+  }
+
+  //GET danh sach gio đã làm cua nhan Vien
+  async traCuuThongTinGioLamCuaNhanVien(req, res) {
+    try {
+      let listGioLamCongTy = await phienLamViecModel.find({
+        idNhanVien: req.body.idNhanVien,
+      });
+
+      let salaryScale = await nhanVienModel.findOne({ idNhanVien: req.body.idNhanVien });
+      let resultSalaryScale = salaryScale.salaryScale;
+
+      let result: ITraCuuGioLamViecDto = listGioLamCongTy.map((phien) => ({
+        ngay: phien.batDau,
+        name: phien.name,
+        noiLam: phien.noiLam,
+        annualLeave: null,
+        batDau: phien.batDau,
+        ketThuc: phien.ketThuc,
+        thoiGianLam: phien.thoiGianLam,
+        active: phien.active,
+        salaryScale: resultSalaryScale,
+        idNhanVien: salaryScale.idNhanVien,
+      }));
+      console.log(result);
+      return res.json(result);
+    } catch (error) {
+      return res.json(error);
+    }
+  }
+
   //GET lương tháng
   async getLuongTheoThang(req, res, next) {
     try {

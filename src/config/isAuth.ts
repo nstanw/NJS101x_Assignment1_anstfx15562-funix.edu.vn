@@ -1,9 +1,12 @@
 class checkLogin {
   isAuth(req, res, next) {
-    console.log(req.url);
-    if (!req.session.IsLoggedIn && !req.session.user) {
-      return res.json({ isAuth: false, url: req.url.split('/')[1]});
+    console.log(req.session);
+    if (!req.session.user) {
+      console.log("chua login");
+      return res.json({ isAuth: false, url: req.url.split("/")[1] });
     }
+    console.log("login thanh cong");
+
     next();
   }
   isAdmin(req, res, next) {
@@ -11,6 +14,16 @@ class checkLogin {
       return res.json({ isAuth: false });
     }
     next();
+  }
+
+  // middleware to test if authenticated
+  isAuthenticated(req, res, next) {
+    console.log(req.session);
+    if (req.session.user) next();
+    else {
+      console.log("lỗi");
+      next();
+    }
   }
 }
 export default new checkLogin();

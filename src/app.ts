@@ -6,8 +6,10 @@ const nhanVienRouter = require("./routes/nhanVienRouter");
 const userRouter = require("./routes/userRouter");
 const covidRouter = require("./routes/covidRouter");
 const nghiPhepRouter = require("./routes/nghiPhepRouter");
+const quanLyRouter = require("./routes/quanLyRouter");
 const mongoose = require("mongoose");
 const session = require("express-session");
+
 
 class App {
   public app: express.Application;
@@ -37,7 +39,7 @@ class App {
 
     // Giúp chúng ta tiếp nhận dữ liệu từ body của request
     this.app.use(express.json());
-    this.app.use(express.urlencoded());
+    this.app.use(express.urlencoded({ extended: false }));
 
     // sử dụng session
     this.app.use(
@@ -54,6 +56,7 @@ class App {
     userRouter(this.app);
     covidRouter(this.app);
     nghiPhepRouter(this.app);
+    quanLyRouter(this.app);
   }
 }
 

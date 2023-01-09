@@ -10,6 +10,9 @@ const nhanVienSchema = new Schema({
     department: String,
     annualLeave: Number,
     image: String,
+    nguoiPhuTrach: Array,
+    role: String,
+    idNhanVien: {type: String, unique: true}
     
 });
 

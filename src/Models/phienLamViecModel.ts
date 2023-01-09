@@ -9,6 +9,7 @@ const PhienLamViecSchema = new Schema({
   batDau: Date,
   ketThuc: Date,
   thoiGianLam: Number,
+  idNhanVien: String,
 });
 
 export default mongoose.model("phienLamViec", PhienLamViecSchema);
