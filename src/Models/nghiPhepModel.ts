@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const nghiPhepSchema = new Schema({
   username: String,
-  ngay: Date,
+  ngay: String,
   gio: Number,
   lyDo: String,
 });
