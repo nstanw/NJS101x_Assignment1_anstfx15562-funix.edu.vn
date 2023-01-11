@@ -19,7 +19,6 @@ type INhanVien = {
   salaryScale: number;
   startDate: string;
   _id: string;
-  gmail: string;
 };
 
 const EditThongTinCaNhan: React.FC = () => {
@@ -80,7 +79,7 @@ const EditThongTinCaNhan: React.FC = () => {
             src={nhanVien.image}
           />
           <Descriptions title="User Info">
-            <Descriptions.Item label="Id">{nhanVien?.gmail}</Descriptions.Item>
+            <Descriptions.Item label="Id">{nhanVien?._id}</Descriptions.Item>
             <Descriptions.Item label="name">{nhanVien?.name}</Descriptions.Item>
             <Descriptions.Item label="doB">{nhanVien?.doB}</Descriptions.Item>
             <Descriptions.Item label="salaryScale">

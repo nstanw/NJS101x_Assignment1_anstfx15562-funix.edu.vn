@@ -1,6 +1,7 @@
 import React from "react";
-import { Button, Form, Select, Table } from "antd";
+import { Button, Form, message, Select, Table } from "antd";
 import phienLamViecService from "../../services/phienLamViecService";
+import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 
@@ -19,13 +20,29 @@ const DiemDanh: React.FC = () => {
   const [name, setName] = React.useState<any>();
   const [listPhienLamViec, setListPhienLamViec] = React.useState([]);
 
+  const navigate = useNavigate();
   // check active
   React.useEffect(() => {
     (async function run() {
-      const result = await phienLamViecService.getActive();
-      setPhienLamViecHienTai(result);
-      setIsActive(result[0].active);
-      setName(result[0].name)
+      // kiểm tra login
+      const token = localStorage.getItem("token");
+      if (!token) {
+        message.error("Vui lòng đăng nhập");
+        return navigate("/login");
+      }
+      // get thông tin username
+      const username = localStorage.getItem("username");
+      if (username) {
+        const result = await phienLamViecService.getActive(username);
+        setIsActive(result.active);
+        setName(result.name);
+        if (result.active) {
+          let phienDangLam = await phienLamViecService.getPhienDangLam();
+          console.log([phienDangLam]);
+          const dataSourcePhienHienTai = phienDangLam ? phienDangLam.map((d: any, index: any) => ({ ...d, key: index })) : [];
+          setPhienLamViecHienTai(dataSourcePhienHienTai);
+        }
+      }
     })();
   }, []);
 
@@ -33,8 +50,11 @@ const DiemDanh: React.FC = () => {
     setIsActive(!isActive);
     if (values) {
       try {
-        let phienLamViecHienTai = await phienLamViecService.addPhienLamViec(values.noiLam.label);
-        setPhienLamViecHienTai(phienLamViecHienTai);
+        const username = localStorage.getItem("username");
+        if (username) {
+          let phienLamViecHienTai = await phienLamViecService.addPhienLamViec(username, values.noiLam.label);
+          setPhienLamViecHienTai(phienLamViecHienTai);
+        }
       } catch (error) {
         console.log("Failed:", error);
       }
@@ -42,6 +62,11 @@ const DiemDanh: React.FC = () => {
   };
 
   const columnsTablePhienHienTai = [
+    {
+      title: "Ngày",
+      dataIndex: "ngay",
+      key: "ngay",
+    },
     {
       title: "Tên nhân viên",
       dataIndex: "name",
@@ -104,21 +129,24 @@ const DiemDanh: React.FC = () => {
   return (
     <Form {...layout} form={form} name="control-hooks" onFinish={onFinish}>
       {isActive ? (
-        <Table
-          pagination={false}
-          dataSource={phienLamViecHienTai.map((d : any, index: any) => ({...d, key: index}))}
-          columns={[
-            ...columnsTablePhienHienTai,
-            {
-              title: "Trạng thái",
-              dataIndex: "active",
-              key: "active",
-              render: (value: boolean, record: any, index) => {
-                return <span>{value ? "Đang làm" : "Không làm"}</span>;
+        <>
+          <Table
+            pagination={false}
+            dataSource={phienLamViecHienTai}
+            columns={[
+              ...columnsTablePhienHienTai,
+              {
+                title: "Trạng thái",
+                dataIndex: "active",
+                key: "active",
+                render: (value: boolean, record: any, index) => {
+                  return <span>{value ? "Đang làm" : "Không làm"}</span>;
+                },
               },
-            },
-          ]}
-        />
+            ]}
+          />
+          {console.log("phienLamViecHienTai", phienLamViecHienTai)}
+        </>
       ) : (
         <>
           <Form.Item label="Tên nhân viên">{name ? name : ""}</Form.Item>
@@ -156,7 +184,7 @@ const DiemDanh: React.FC = () => {
       </Form.Item>
       {listPhienLamViec.length > 0 && (
         <Table
-          dataSource={listPhienLamViec.map((d : any, index: any) => ({...d, key: index}))}
+          dataSource={listPhienLamViec.map((d: any, index: any) => ({ ...d, key: index }))}
           columns={[
             ...columnsTableListPhien,
             {
