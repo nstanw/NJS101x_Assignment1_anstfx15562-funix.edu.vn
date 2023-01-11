@@ -2,14 +2,14 @@ import Input from "antd/es/input/Input";
 import http from "./httpService";
 
 export interface IDangKiNghiPhepInput {
-  ngayDangKiPhep: Array<Date>;
-  soNgayDangKiNghi: number;
+  ngay: String;
+  gio: number;
   lyDo: String;
 }
 
 class NghiPhepService {
   public async dangKiNghiPhep(input: IDangKiNghiPhepInput) {
-    let result = await http.patch("/nghiPhep/dangKiNghiPhep", input);
+    let result = await http.post("/nghiPhep/dangKiNghiPhep", input);
     return result.data;
   }
  

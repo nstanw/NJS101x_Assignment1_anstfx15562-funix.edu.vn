@@ -23,22 +23,23 @@ const NghiPhep: React.FC = () => {
       if (nghiNhieuNgay) {
         const values = {
           lyDo: fieldsValue.lyDo,
-          soNgayDangKiNghi: Math.abs(new Date(rangeValue[0].format("YYYY-MM-DD")).getDate() - new Date(rangeValue[1].format("YYYY-MM-DD")).getDate()),
+          gio: Math.abs(new Date(rangeValue[0].format("YYYY-MM-DD")).getDate() - new Date(rangeValue[1].format("YYYY-MM-DD")).getDate()),
           ngayDangKiPhep: [rangeValue[0].format("YYYY-MM-DD"), rangeValue[1].format("YYYY-MM-DD")],
         };
 
-        if (soNgayPhepConLai && values.soNgayDangKiNghi > soNgayPhepConLai) {
+        if (soNgayPhepConLai && values.gio > soNgayPhepConLai) {
           return message.error("Số ngày phép đăng kí phải nhỏ hơn số ngày phép còn lại");
         }
         if (soNgayPhepConLai && soNgayPhepConLai < 0) {
           return message.error("Bạn đã hết số phép quy định");
         }
+
         const input: IDangKiNghiPhepInput = {
-          ngayDangKiPhep: values.ngayDangKiPhep,
-          soNgayDangKiNghi: values.soNgayDangKiNghi,
+          ngay: values.ngayDangKiPhep.toString(),
+          gio: 8,
           lyDo: values.lyDo,
         };
-        setSoNgayPhepDangKi(values.soNgayDangKiNghi);
+        setSoNgayPhepDangKi(values.ngayDangKiPhep.length);
         await nghiPhepService.dangKiNghiPhep(input);
         message.success("Đăng kí phép thành công");
         setIsChange(!isChange);
@@ -52,13 +53,13 @@ const NghiPhep: React.FC = () => {
 
       const values = {
         lyDo: fieldsValue.lyDo,
-        ngayDangKiPhep: [fieldsValue["date-picker"].format("YYYY-MM-DD")],
+        ngayDangKiPhep: fieldsValue["date-picker"].format("YYYY-MM-DD"),
         soNgayDangKiNghi: fieldsValue.soGioNghi / 8,
       };
 
       const input: IDangKiNghiPhepInput = {
-        ngayDangKiPhep: values.ngayDangKiPhep,
-        soNgayDangKiNghi: values.soNgayDangKiNghi,
+        ngay: values.ngayDangKiPhep,
+        gio: values.soNgayDangKiNghi,
         lyDo: values.lyDo,
       };
       setSoNgayPhepDangKi(values.soNgayDangKiNghi);
@@ -68,7 +69,7 @@ const NghiPhep: React.FC = () => {
       if (soNgayPhepConLai && soNgayPhepConLai < 0) {
         return message.error("Bạn đã hết số phép quy định");
       }
-       await nghiPhepService.dangKiNghiPhep(input);
+      await nghiPhepService.dangKiNghiPhep(input);
       setIsChange(!isChange);
       message.success("Đăng kí phép thành công");
       return;
