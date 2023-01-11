@@ -3,12 +3,13 @@ const { Schema } = mongoose;
 
 const PhienLamViecSchema = new Schema({
   name: String,
-  gmail: {type: String, unique: true},
+  ngay: String,
   noiLam: String,
   active: Boolean,
   batDau: Date,
   ketThuc: Date,
   thoiGianLam: Number,
+  username: String,
 });
 
 export default mongoose.model("phienLamViec", PhienLamViecSchema);

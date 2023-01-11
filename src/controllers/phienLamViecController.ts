@@ -24,94 +24,96 @@ interface ITraCuuGioLamViec {
 }
 type ITraCuuGioLamViecDto = ITraCuuGioLamViec[];
 
-export default new (class PhienLamViec {
+export default new (class {
   //GET active
   async getActive(req, res) {
-    let name = "admin";
-    let checkActive = await phienLamViecModel.findOne({ active: true });
-    console.log(checkActive);
-    if (checkActive === null) {
-      let result: PhienLamViecDto = [
-        {
-          name: name,
-          noiLam: null,
-          active: false,
-          batDau: null,
-          ketThuc: null,
-          thoiGianLam: null,
-        },
-      ];
-      return res.json(result);
-    }
-
-    let result: PhienLamViecDto = [
-      {
-        name: checkActive.name,
-        noiLam: checkActive.noiLam,
-        active: true,
-        batDau: new Date(checkActive.batDau),
-        ketThuc: null,
-        thoiGianLam: null,
-      },
-    ];
-    return res.send(result);
+    let checkActive = await nhanVienModel.findOne({ username: req.query.username });
+    return res.send(checkActive);
   }
+
+  //-GET phien làm viec dang hoat dong
+  //-input: username
+  //-output: active = true
+  async getPhienDangLam(req, res) {
+    console.log(req.decoded.username);
+    let phienDangLam = await phienLamViecModel.find({ username: req.decoded.username });
+    console.log("phienDangLam", phienDangLam);
+    return res.send(phienDangLam);
+  }
+
   //POST thêm phiên làm việc
+  //- username
+  // - noiLam
   async addPhienLamViec(req, res, next) {
     // input noiLam: string
-    let nhanVien = await nhanVienModel.findOne({ gmail: "admin@admin.com" });
-    //kiểm tra data rỗng hay không. rỗng thì tạo mới
-    let dataBase = (await phienLamViecModel.find({})) as [];
+    let nhanVien = await nhanVienModel.findOne({ username: req.body.username });
+
+    if (nhanVien.active) {
+      return res.json({ error: "Nhân viên đang trong phiên làm việc" });
+    }
 
     //kiem tra actice. nếu đang hoạt động thì báo lỗi. line 40.
     let checkActive = await phienLamViecModel.findOne({ active: true });
-
-    // nếu active = false và chưa có phiên sẽ thêm phiên làm mới
-    let isCheckAddPhienLamViec: Boolean = checkActive === null || dataBase.length === 0;
-    if (isCheckAddPhienLamViec) {
-      let newPhien = new phienLamViecModel({
-        name: nhanVien.name,
-        noiLam: req.body.noiLam,
-        active: true,
-        batDau: new Date(Date.now()),
-        ketThuc: null,
-        thoiGianLam: null,
-      });
-      try {
-        let savePhien = await newPhien.save();
-        return res.status(200).send([savePhien]);
-      } catch (error) {
-        return console.log(error);
-      }
+    if (checkActive) {
+      return res.json({ error: "Nhân viên đang trong phiên làm việc" });
     }
-    return res.status(400).json({ err: "Đang trong phiên làm việc không thể điểm danh" });
+    //update active nhân viên
+    let updateActive = await nhanVienModel.findOneAndUpdate({ username: req.body.username }, { active: true });
+
+    //thêm phiên
+    let newPhien = new phienLamViecModel({
+      username: nhanVien.username,
+      ngay: new Date(Date.now()).toLocaleDateString(),
+      name: nhanVien.name,
+      noiLam: req.body.noiLam,
+      active: true,
+      batDau: new Date(Date.now()),
+      ketThuc: null,
+      thoiGianLam: null,
+    });
+    try {
+      let savePhien = await newPhien.save();
+      return res.status(200).send([savePhien]);
+    } catch (error) {
+      return console.log(error);
+    }
   }
   // PATCH Kết thúc phiên làm việc
-  async ketThucPhienLamViec(req, res, next) {
-    // kiểm tra trong list phiên có phiên nào không. nếu trống thông báo lỗi
-    let dataBase = (await phienLamViecModel.find({})) as [];
-    if (dataBase.length === 0) {
-      return res.status(400).json({ error: "Hiện tại không có phiên làm việc nào" });
-    }
+  /**
+   * duyệt qua cơ sở dữ liệu và kiểm tra xem có phiên nào đang hoạt không.
+   * nếu không báo lỗi
+   * nếu có kết thúc, tính giờ, chuyển trạng thai
+   * trả về list các phiên
+   * @param req
+   * @param res
+   * @param next
+   */
+  async ketThucPhienLamViec(req, res, next) {    
     //kiem tra người dùng đang trong phiên không
-    let phienActive = await phienLamViecModel.findOne({ active: true });
-    if (phienActive === null) {
-      return res.json({
-        error: "Hiện tại chưa có phiên làm việc nào đang diễn ra. Không thể kết thúc",
-      });
+    let phienActive = await phienLamViecModel.find({ active: true });
+    if (phienActive.length === 0) {
+      return res.json({ error: "không có phiên đang hoạt động" });
     }
-    //thay dổi trạng thái
+
+    // thay đổi trạng thái hoạt động
+    let updateActive = await nhanVienModel.findOneAndUpdate({ username: req.decoded.username }, { active: false });
+
+    //xác định phiên đang hoạt động
+    let phienDangHoatDong = await phienLamViecModel.findOne({ username: req.decoded.username, active: true });
+
+    //thay đổi phiên đó    
     try {
-      let thoiGianLam = getHouseBetweenTwoDate(Date.now(), phienActive.batDau.getTime());
+      let thoiGianLam = getHouseBetweenTwoDate(Date.now(), new Date(phienDangHoatDong.batDau).getTime());
       let setThoiGianKetThuc = {
         ketThuc: new Date(Date.now()),
         thoiGianLam: thoiGianLam,
         active: false,
       };
-
+      const username = req.decoded.username
       //update thời gian kết thúc và tính thời gian đã làm
-      await phienLamViecModel.findOneAndUpdate({ active: true }, setThoiGianKetThuc, { returnDocument: "after" });
-
+      await phienLamViecModel.findOneAndUpdate({ username: username, active: true }, setThoiGianKetThuc, { returnDocument: "after" });
+      
+      //trả list active = false
       let listPhienLamViecHomNay = await phienLamViecModel.find({});
       console.log(listPhienLamViecHomNay);
 

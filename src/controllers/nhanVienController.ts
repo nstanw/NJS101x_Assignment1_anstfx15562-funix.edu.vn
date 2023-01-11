@@ -5,7 +5,7 @@ export default new (class NhanVienController {
   //POST
   async addNhanVien(req, res) {
     let newNhanVien = new nhanVienModel({
-      gmail: req.body.gmail,
+
       name: req.body.name,
       doB: Date.now(),
       salaryScale: req.body.salaryScale,
