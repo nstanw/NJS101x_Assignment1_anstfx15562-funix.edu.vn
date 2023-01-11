@@ -44,22 +44,49 @@ export default new (class {
         return res.json({ error: "Số phép còn lại không đủ" });
       }
 
-      // hợp lệ thì tiến hành đăng kí
-      const dangKiPhep = new nghiPhepModel({
-        username: req.decoded.username,
-        ngay: req.body.ngay,
-        gio: req.body.gio,
-        lyDo: req.body.lyDo,
-      });
+      // trường hợp nhân viên đăng kí nhiều ngày
+      let capNhatNgayPhepConLai;
+      let listNgay = req.body.ngay.split(',')
+      if (listNgay.length > 1) {
+        listNgay.forEach(element => {
+          // hợp lệ thì tiến hành đăng kí
+          const dangKiPhep = new nghiPhepModel({
+            username: req.decoded.username,
+            ngay: element,
+            gio: 8,
+            lyDo: req.body.lyDo,
+          });
 
-      // thêm đăng kí
-      await dangKiPhep.save();
+          // thêm đăng kí
+          async () => await dangKiPhep.save();
 
-      // cập nhật ngày phép còn lại
-      // trừ vào số phép còn lại và tạo document phép mới theo từng ngày để phục vụ tính giờ sau này
-      const annualLeave = phepConLai.annualLeave - req.body.gio / 8 ;
-      let capNhatNgayPhepConLai = await nhanVienModel.findOneAndUpdate({ username: req.decoded.username }, { annualLeave:  annualLeave }, { upsert: true });
+          // cập nhật ngày phép còn lại
+          // trừ vào số phép còn lại và tạo document phép mới theo từng ngày để phục vụ tính giờ sau này
+          const annualLeave = phepConLai.annualLeave - 1;
+          capNhatNgayPhepConLai = async () => await nhanVienModel.findOneAndUpdate({ username: req.decoded.username }, { annualLeave: annualLeave }, { upsert: true });
+        });
+      }
+      // th đăng kí 1 ngày
+      else {
+        // hợp lệ thì tiến hành đăng kí
+        const dangKiPhep = new nghiPhepModel({
+          username: req.decoded.username,
+          ngay: req.body.ngay,
+          gio: req.body.gio,
+          lyDo: req.body.lyDo,
+        });
 
+        // thêm đăng kí
+        await dangKiPhep.save();
+
+        // cập nhật ngày phép còn lại
+        // trừ vào số phép còn lại và tạo document phép mới theo từng ngày để phục vụ tính giờ sau này
+        const annualLeave = phepConLai.annualLeave - req.body.gio / 8;
+        capNhatNgayPhepConLai = await nhanVienModel.findOneAndUpdate({ username: req.decoded.username }, { annualLeave: annualLeave }, { upsert: true });
+
+        console.log(capNhatNgayPhepConLai);
+        return res.status(200).json(capNhatNgayPhepConLai);
+      }
       console.log(capNhatNgayPhepConLai);
       return res.status(200).json(capNhatNgayPhepConLai);
     } catch (error) {

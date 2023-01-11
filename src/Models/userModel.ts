@@ -6,4 +6,4 @@ const userSchema = new Schema({
   passsword: {type: 'string', required: true},
 });
 
-export default mongoose.model("Auth", userSchema);
+export default mongoose.model("user", userSchema);

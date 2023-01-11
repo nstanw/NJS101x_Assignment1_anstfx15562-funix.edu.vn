@@ -10,8 +10,8 @@ const nhanVienSchema = new Schema({
     annualLeave: Number,
     image: String,
     active: Boolean,
-    username: String
-    
+    username: String,
+    phepNam: Number,
 });
 
 export default mongoose.model("nhanVien", nhanVienSchema);
