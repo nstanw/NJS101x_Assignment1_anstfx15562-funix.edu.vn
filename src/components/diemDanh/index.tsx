@@ -17,33 +17,43 @@ const DiemDanh: React.FC = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [isActive, setIsActive] = React.useState(false);
-  const [phienLamViecHienTai, setPhienLamViecHienTai] = React.useState<any>();
+  const [phienLamViecHienTai, setPhienLamViecHienTai] = React.useState<any[]>();
   const [name, setName] = React.useState<any>();
   const [listPhienLamViec, setListPhienLamViec] = React.useState([]);
 
   // check active
   React.useEffect(() => {
     (async function run() {
-      const result = await phienLamViecService.getActive();
+      //kiểm tra xem có đang active hay không
+      //- nếu active = false -> hiển thị điểm danh
+      //- nếu active = true -> table đang làm và nút checkout
+      const username = "nv1";
+      const result = await phienLamViecService.getActive(username);
       // if (!result.isAuth) {
       //   message.error("Vui lòng đăng nhập!");
       //   return navigate("/login");
       // }
-      setPhienLamViecHienTai(result);
-      if (result[0].active && result[0].name) {
-        setName(result[0].name);
-        return setIsActive(result[0].active);
+      console.log(result);
+      setName(result.name);
+      if (result.active) {
+        const result = await phienLamViecService.getActive(username);
+        setPhienLamViecHienTai([result]);
+        return setIsActive(result.active);
       }
       setIsActive(false);
     })();
-  }, []);
+  }, [listPhienLamViec]);
 
   const onFinish = async (values: any) => {
     setIsActive(!isActive);
+    console.log(values);
+
     if (values) {
       try {
-        let phienLamViecHienTai = await phienLamViecService.addPhienLamViec(values.noiLam.label);
-        setPhienLamViecHienTai(phienLamViecHienTai);
+        const username = "nv1";
+        let phienLamViec = await phienLamViecService.addPhienLamViec(username, values.noiLam.label);
+        console.log(phienLamViec);
+        setPhienLamViecHienTai(phienLamViec);
       } catch (error) {
         console.log("Failed:", error);
       }
@@ -115,7 +125,7 @@ const DiemDanh: React.FC = () => {
       {isActive ? (
         <Table
           pagination={false}
-          dataSource={phienLamViecHienTai.map((d: any, index: any) => ({ ...d, key: index }))}
+          dataSource={phienLamViecHienTai ? phienLamViecHienTai.map((d: any, index: any) => ({ ...d, key: index })) : []}
           columns={[
             ...columnsTablePhienHienTai,
             {
@@ -151,7 +161,8 @@ const DiemDanh: React.FC = () => {
           disabled={!isActive}
           onClick={async () => {
             try {
-              let phienLamViecs = await phienLamViecService.ketThucPhienLamViec();
+              const username = "nv1";
+              let phienLamViecs = await phienLamViecService.ketThucPhienLamViec(username);
               phienLamViecs = phienLamViecs.filter((d: any) => new Date(d.batDau).getDate() === new Date(Date.now()).getDate());
               setListPhienLamViec(phienLamViecs);
               setIsActive(!isActive);

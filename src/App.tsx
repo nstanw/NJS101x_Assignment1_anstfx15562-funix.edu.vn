@@ -11,6 +11,7 @@ import TraCuuGioLam from "./components/traCuuGioLam";
 import CovidCaNhan from "./components/covidCaNhan";
 import Login from "./components/login";
 import QuanLyGioLam from "./components/quanLyGioLam";
+import QuanLy from "./components/traCuuGioLam/quanLy";
 const { Header, Content } = Layout;
 
 const App: React.FC = () => {
@@ -83,6 +84,7 @@ const App: React.FC = () => {
               <Route path="/traCuuThongTinGioLam" element={<TraCuuGioLam />}></Route>
               <Route path="/thongTinCovidCaNhan" element={<CovidCaNhan />}></Route>
               <Route path="/quanLyGioLam" element={<QuanLyGioLam />}></Route>
+              {/* <Route path="/quanLy" element={<QuanLy />}></Route> */}
             </Routes>
           </Content>
 

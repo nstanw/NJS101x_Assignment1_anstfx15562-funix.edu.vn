@@ -3,6 +3,7 @@ import React from "react";
 import phienLamViecService from "../../services/phienLamViecService";
 import Search from "./search";
 import { useNavigate } from "react-router-dom";
+import QuanLy from "./quanLy";
 
 const layout = {
   labelCol: { span: 8 },
@@ -182,8 +183,6 @@ const TraCuuGioLam = () => {
       setChiTietLuong(luongThang);
     } catch (error) {
       console.log("Failed:", error);
-
-      
     }
   };
 
@@ -197,6 +196,7 @@ const TraCuuGioLam = () => {
         }}
         onCandle={() => setIsFilter(false)}
       />
+      <QuanLy />
       {!isFilter ? (
         <Form {...layout} name="control-hooks">
           <h2>Danh sách giờ đã làm</h2>

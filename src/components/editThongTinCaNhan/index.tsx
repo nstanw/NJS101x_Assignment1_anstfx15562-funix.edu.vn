@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { Avatar, Button, Descriptions, Form, Input, message, Modal, UploadFile } from 'antd';
-import nhanVienService from '../../services/nhanVienService';
-import { useNavigate } from 'react-router-dom';
-import Upload from 'antd/es/upload/Upload';
-import { RcFile, UploadChangeParam } from 'antd/lib/upload';
+import React, { useState } from "react";
+import { Avatar, Button, Descriptions, Form, Input, message, Modal, Switch, UploadFile } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import nhanVienService from "../../services/nhanVienService";
+import { useNavigate } from "react-router-dom";
+import Upload from "antd/es/upload/Upload";
+import type { RcFile, UploadProps } from "antd/es/upload";
 
 type INhanVien = {
   annualLeave: number;
@@ -23,8 +24,11 @@ const EditThongTinCaNhan: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState('');
-  const [previewTitle, setPreviewTitle] = useState('');
+  const [previewImage, setPreviewImage] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
+  const [uploadMode, setUploadMode] = useState(true);
+  const [linkUpLoadMode, setLinkUploadMode] = useState("");
+  const [fileList, setFileList] = React.useState<any[]>([]);
 
   const getInfo = async function run() {
     let nhanVienInfo = await nhanVienService.getNhanVien();
@@ -44,26 +48,52 @@ const EditThongTinCaNhan: React.FC = () => {
   }, []);
 
   const onFinish = async (values: any) => {
+    console.log(values);
     form.resetFields();
     try {
-      await nhanVienService.editLinkImage(values.image);
-      getInfo();
-      message.success('Đã thay đổi link ảnh thành công');
+      if (values.upload) {
+        const image = process.env.REACT_APP_REMOTE_SERVICE_BASE_URL + "Resource\\images\\" + values.upload.file.response.path.split("\\Resource\\images\\")[1];
+        setLinkUploadMode(image);
+        console.log(image);
+        await nhanVienService.editLinkImage(image);
+        message.success("Đã thay đổi ảnh thành công");
+        setIsModalOpen(false);
+        getInfo();
+
+        return;
+      }
+      if (values.image) {
+        console.log("values.image", values.image);
+        await nhanVienService.editLinkImage(values.image);
+        message.success("Đã thay đổi link ảnh thành công");
+        setIsModalOpen(false);
+        getInfo();
+        return;
+      }
     } catch (error) {
-      console.log('Failed to edit link image:', error);
+      console.log("Failed to edit link image:", error);
     }
     setIsModalOpen(false);
   };
 
-  const handleUpload = (info: UploadChangeParam) => {
-    if (info.file.status !== 'uploading') {
-      console.log(info.file, info.fileList);
-    }
-    if (info.file.status === 'done') {
-      message.success(`${info.file.name} file uploaded successfully`);
-    } else if (info.file.status === 'error') {
-      message.error(`${info.file.name} file upload failed.`);
-    }
+  const uploadFileprops = {
+    name: "file",
+    action: process.env.REACT_APP_REMOTE_SERVICE_BASE_URL + "Upload",
+    multiple: false,
+    // headers: {
+    //   authorization: 'Bearer ' + abp.auth.getToken(),
+    // },
+
+    onChange(info: any) {
+      if (info.file.status !== "uploading") {
+      }
+      if (info.file.status === "done") {
+        message.success(`${info.file.name} file đã được upload thành công`);
+      } else if (info.file.status === "error") {
+        message.error(`${info.file.name} file upload failed.`);
+      }
+    },
+    // fileList,
   };
 
   const handlePreview = async (file: UploadFile) => {
@@ -73,7 +103,7 @@ const EditThongTinCaNhan: React.FC = () => {
 
     setPreviewImage(file.url || (file.preview as string));
     setPreviewOpen(true);
-    setPreviewTitle(file.name || file.url!.substring(file.url!.lastIndexOf('/') + 1));
+    setPreviewTitle(file.name || file.url!.substring(file.url!.lastIndexOf("/") + 1));
   };
 
   const handleCancel = () => setPreviewOpen(false);
@@ -86,53 +116,46 @@ const EditThongTinCaNhan: React.FC = () => {
       reader.onerror = (error) => reject(error);
     });
 
+  const onChangeModeChangeImg = async (checked: boolean) => {
+    setUploadMode(checked);
+    if (checked) {
+    }
+    console.log(`switch to ${checked}`);
+  };
+
+  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => setFileList(newFileList);
+
+  const uploadButton = (
+    <div>
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
+
   return (
     <>
       {nhanVien && (
         <>
-          <Modal
-            open={previewOpen}
-            title={previewTitle}
-            footer={null}
-            // onCancel={handleCancel}
-          >
-            <img
-              alt='example'
-              style={{ width: '100%' }}
-              src={previewImage}
-            />
+          <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
+            <img alt="example" style={{ width: "100%" }} src={previewImage} />
           </Modal>
-          <Modal
-            title='Thay đổi hình ảnh'
-            open={isModalOpen}
-            footer={false}
-            onCancel={() => setIsModalOpen(false)}
-          >
-            <Form onFinish={onFinish}>
-              <Form.Item
-                name='image'
-                label='Nhập đường dẫn hình ảnh'
-              >
-                <Input allowClear />
-              </Form.Item>
-              <Form.Item
-                name='upload'
-                label='Chọn đường dẫn ảnh'
-              >
-                <Upload
-                  action='/upload'
-                  onChange={handleUpload}
-                
-                  accept='image/*'
-                >
-                  <button>Upload Image</button>
-                </Upload>
-              </Form.Item>
+          <Modal title="Thay đổi hình ảnh" open={isModalOpen} footer={false} onCancel={() => setIsModalOpen(false)}>
+            <Switch defaultChecked onChange={onChangeModeChangeImg} />
+            <span> Sử dụng link ảnh</span>
+            <Form onFinish={onFinish} form={form}>
+              {uploadMode ? (
+                <Form.Item name="image" label="Nhập đường dẫn hình ảnh">
+                  <Input allowClear />
+                </Form.Item>
+              ) : (
+                <Form.Item name="upload" label="Chọn đường dẫn ảnh">
+                  <Upload {...uploadFileprops} listType="picture-card" fileList={fileList} onPreview={handlePreview} onChange={handleChange}>
+                    {fileList.length >= 1 ? null : uploadButton}
+                  </Upload>
+                </Form.Item>
+              )}
               <Form.Item wrapperCol={{ offset: 20, span: 4 }}>
-                <Button
-                  danger
-                  htmlType='submit'
-                >
+                <Button danger htmlType="submit">
                   Submit
                 </Button>
               </Form.Item>
@@ -144,14 +167,14 @@ const EditThongTinCaNhan: React.FC = () => {
             onClick={() => setIsModalOpen(true)}
             src={nhanVien.image}
           />
-          <Descriptions title='User Info'>
-            <Descriptions.Item label='Id'>{nhanVien?.gmail}</Descriptions.Item>
-            <Descriptions.Item label='name'>{nhanVien?.name}</Descriptions.Item>
-            <Descriptions.Item label='doB'>{nhanVien?.doB}</Descriptions.Item>
-            <Descriptions.Item label='salaryScale'>{nhanVien?.salaryScale}</Descriptions.Item>
-            <Descriptions.Item label='startDate'>{nhanVien?.startDate}</Descriptions.Item>
-            <Descriptions.Item label='department'>{nhanVien?.department}</Descriptions.Item>
-            <Descriptions.Item label='annualLeave'>{nhanVien?.annualLeave}</Descriptions.Item>
+          <Descriptions title="User Info">
+            <Descriptions.Item label="Id">{nhanVien?.gmail}</Descriptions.Item>
+            <Descriptions.Item label="name">{nhanVien?.name}</Descriptions.Item>
+            <Descriptions.Item label="doB">{nhanVien?.doB}</Descriptions.Item>
+            <Descriptions.Item label="salaryScale">{nhanVien?.salaryScale}</Descriptions.Item>
+            <Descriptions.Item label="startDate">{nhanVien?.startDate}</Descriptions.Item>
+            <Descriptions.Item label="department">{nhanVien?.department}</Descriptions.Item>
+            <Descriptions.Item label="annualLeave">{nhanVien?.annualLeave}</Descriptions.Item>
           </Descriptions>
         </>
       )}
