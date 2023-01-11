@@ -26,7 +26,7 @@ export default new (class NhanVienController {
   //GET thông tin nhân viên
   async getNhanVien(req, res) {
     try {
-      let infoNhanVien = await nhanVienModel.findOne({ gmail: "admin@admin.com" });
+      let infoNhanVien = await nhanVienModel.findOne({username: req.decoded.username });
       console.log(infoNhanVien);
       return res.status(200).json(infoNhanVien);
     } catch (error) {
@@ -37,7 +37,7 @@ export default new (class NhanVienController {
   //PATCH image link
   async editLinkImage(req, res) {
     try {
-      let infoNhanVien = await nhanVienModel.findOneAndUpdate({ gmail: "admin@admin.com" }, { image: req.body.image }, { returnDocument: "after" });
+      let infoNhanVien = await nhanVienModel.findOneAndUpdate({username: req.decoded.username }, { image: req.body.image }, { returnDocument: "after" });
       console.log(infoNhanVien);
       return res.json(infoNhanVien);
     } catch (error) {

@@ -152,40 +152,40 @@ export default new (class {
   //GET lương tháng
   async getLuongTheoThang(req, res, next) {
     try {
-      let listGioLamCongTy = await phienLamViecModel.find({
-        active: false,
-      });
+      // let listGioLamCongTy = await phienLamViecModel.find({
+      //   active: false,
+      // });
 
-      let salaryScale = await nhanVienModel.findOne({ gmail: "admin@admin.com" });
-      let resultSalaryScale = salaryScale.salaryScale;
+      // let salaryScale = await nhanVienModel.findOne({username: req.decoded.username });
+      // let resultSalaryScale = salaryScale.salaryScale;
 
-      let listTheoThang = listGioLamCongTy.filter((d) => new Date(d.ketThuc).getMonth() + 1 === parseInt(req.query.thang));
-      let thongTinNghiPhepNV = await nghiPhepModel.findOne({ gmail: "admin@admin.com" });
+      // let listTheoThang = listGioLamCongTy.filter((d) => new Date(d.ketThuc).getMonth() + 1 === parseInt(req.query.thang));
+      // let thongTinNghiPhepNV = await nghiPhepModel.findOne({username: req.decoded.username });
 
-      let lamThem: number;
-      let gioLamThieu: number;
-      const thoiGianLamTrongThang = listTheoThang.map((thoiGianLam) => thoiGianLam.thoiGianLam);
-      let sum = thoiGianLamTrongThang.reduce((accumulator: number, currentValue: any) => accumulator + currentValue, 0);
-      if (sum && sum > 8) {
-        lamThem = Math.round(sum * 100) / 100 - 8;
-        gioLamThieu = 0;
-      } else {
-        lamThem = 0;
-        gioLamThieu = 8 - Math.round(sum * 100) / 100;
-      }
+      // let lamThem: number;
+      // let gioLamThieu: number;
+      // const thoiGianLamTrongThang = listTheoThang.map((thoiGianLam) => thoiGianLam.thoiGianLam);
+      // let sum = thoiGianLamTrongThang.reduce((accumulator: number, currentValue: any) => accumulator + currentValue, 0);
+      // if (sum && sum > 8) {
+      //   lamThem = Math.round(sum * 100) / 100 - 8;
+      //   gioLamThieu = 0;
+      // } else {
+      //   lamThem = 0;
+      //   gioLamThieu = 8 - Math.round(sum * 100) / 100;
+      // }
 
-      let chiTietLuong = {
-        name: listTheoThang[0].name,
-        annualLeave: thongTinNghiPhepNV.soPhepDangKi,
-        lamThem: lamThem,
-        gioLamThieu: Math.abs(gioLamThieu - thongTinNghiPhepNV.soPhepDangKi),
-        thoiGianLam: Math.round(sum * 100) / 100,
-        salaryScale: resultSalaryScale,
-        luong: resultSalaryScale * 3000000 + (lamThem - gioLamThieu * 200000),
-      };
+      // let chiTietLuong = {
+      //   name: listTheoThang[0].name,
+      //   annualLeave: thongTinNghiPhepNV.soPhepDangKi,
+      //   lamThem: lamThem,
+      //   gioLamThieu: Math.abs(gioLamThieu - thongTinNghiPhepNV.soPhepDangKi),
+      //   thoiGianLam: Math.round(sum * 100) / 100,
+      //   salaryScale: resultSalaryScale,
+      //   luong: resultSalaryScale * 3000000 + (lamThem - gioLamThieu * 200000),
+      // };
 
-      console.log(chiTietLuong);
-      return res.json(chiTietLuong);
+      // console.log(chiTietLuong);
+      // return res.json(chiTietLuong);
     } catch (error) {
       return res.json(error);
     }

@@ -11,9 +11,9 @@ function Router(app) {
   app.get("/phienLamViec/getLuongTheoThang", userController.protect, phienLamViecController.getLuongTheoThang);
 
   // dang ki phep
-  app.get("/nghiPhep/getThongTinNghiPhepNV", nghiPhepController.getThongTinNghiPhepNV);
-  app.get("/nghiPhep/getNgayPhepConLai", nghiPhepController.getNgayPhepConLai);
-  app.patch("/nghiPhep/dangKiNghiPhep", nghiPhepController.dangKiNghiPhep);
+  app.get("/nghiPhep/getThongTinNghiPhepNV", userController.protect, nghiPhepController.getThongTinNghiPhepNV);
+  app.get("/nghiPhep/getNgayPhepConLai", userController.protect, nghiPhepController.getNgayPhepConLai);
+  app.post("/nghiPhep/dangKiNghiPhep", userController.protect, nghiPhepController.dangKiNghiPhep);
 }
 
 module.exports = Router;
