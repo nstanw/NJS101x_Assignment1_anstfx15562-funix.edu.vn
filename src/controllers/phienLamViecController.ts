@@ -21,106 +21,81 @@ interface ITraCuuGioLamViec {
   ketThuc: Date | null;
   thoiGianLam: Number | null;
   active: Boolean;
-  idNhanVien?: String;
+  username?: String;
 }
 type ITraCuuGioLamViecDto = ITraCuuGioLamViec[];
 
 export default new (class PhienLamViec {
   //GET active
+  //-input: username
+  //-output: nhanVien
   async getActive(req, res) {
-    console.log(req.session);
-
-    let name = "admin";
-    let checkActive = await phienLamViecModel.findOne({ active: true });
-    console.log(checkActive);
-    if (checkActive === null) {
-      let result: PhienLamViecDto = [
-        {
-          name: name,
-          noiLam: null,
-          active: false,
-          batDau: null,
-          ketThuc: null,
-          thoiGianLam: null,
-        },
-      ];
-      return res.json(result);
+    try {
+      let nhanVien = await nhanVienModel.findOne({ username: req.query.username });
+      console.log(req.query.username);
+      console.log(nhanVien);
+      res.json(nhanVien);
+    } catch (error) {
+      res.json({ error: error });
     }
-
-    let result: PhienLamViecDto = [
-      {
-        name: checkActive.name,
-        noiLam: checkActive.noiLam,
-        active: true,
-        batDau: new Date(checkActive.batDau),
-        ketThuc: null,
-        thoiGianLam: null,
-      },
-    ];
-    return res.send(result);
   }
   //POST thêm phiên làm việc
+  //-input: username
+  //-input: noiLam
+  //-output: Phiên đang làm
   async addPhienLamViec(req, res, next) {
     // input noiLam: string
     let nhanVien = await nhanVienModel.findOne({ gmail: "admin@admin.com" });
     //kiểm tra data rỗng hay không. rỗng thì tạo mới
     let dataBase = (await phienLamViecModel.find({})) as [];
-
+    
     //kiem tra actice. nếu đang hoạt động thì báo lỗi. line 40.
     let checkActive = await phienLamViecModel.findOne({ active: true });
 
     // nếu active = false và chưa có phiên sẽ thêm phiên làm mới
     let isCheckAddPhienLamViec: Boolean = checkActive === null || dataBase.length === 0;
     if (isCheckAddPhienLamViec) {
-      let newPhien = new phienLamViecModel({
-        name: nhanVien.name,
-        noiLam: req.body.noiLam,
-        active: true,
-        batDau: new Date(Date.now()),
-        ketThuc: null,
-        thoiGianLam: null,
-      });
-      try {
-        let savePhien = await newPhien.save();
+    let newPhien = new phienLamViecModel({
+      ngay: new Date(Date.now()).toLocaleDateString(),
+      name: nhanVien.name,
+      username: req.body.username,
+      noiLam: req.body.noiLam,
+      active: true,
+      batDau: new Date(Date.now()),
+      ketThuc: null,
+      thoiGianLam: null,
+    });
+    try {
+      let savePhien = await newPhien.save();
         return res.status(200).send([savePhien]);
-      } catch (error) {
-        return console.log(error);
-      }
+    } catch (error) {
+      return console.log(error);
     }
+  }
     return res.status(400).json({ err: "Đang trong phiên làm việc không thể điểm danh" });
   }
   // PATCH Kết thúc phiên làm việc
+  //-input: username
+  //output: list false
   async ketThucPhienLamViec(req, res, next) {
-    // kiểm tra trong list phiên có phiên nào không. nếu trống thông báo lỗi
-    let dataBase = (await phienLamViecModel.find({})) as [];
-    if (dataBase.length === 0) {
-      return res.status(400).json({ error: "Hiện tại không có phiên làm việc nào" });
-    }
-    //kiem tra người dùng đang trong phiên không
-    let phienActive = await phienLamViecModel.findOne({ active: true });
-    if (phienActive === null) {
-      return res.json({
-        error: "Hiện tại chưa có phiên làm việc nào đang diễn ra. Không thể kết thúc",
-      });
-    }
-    //thay dổi trạng thái
     try {
-      let thoiGianLam = getHouseBetweenTwoDate(Date.now(), phienActive.batDau.getTime());
-      let setThoiGianKetThuc = {
-        ketThuc: new Date(Date.now()),
-        thoiGianLam: thoiGianLam,
-        active: false,
-      };
-
-      //update thời gian kết thúc và tính thời gian đã làm
-      await phienLamViecModel.findOneAndUpdate({ active: true }, setThoiGianKetThuc, { returnDocument: "after" });
-
-      let listPhienLamViecHomNay = await phienLamViecModel.find({});
-      console.log(listPhienLamViecHomNay);
-
-      res.status(200).json(listPhienLamViecHomNay);
+      let phienDangLam = await phienLamViecModel.findOne({ active: true });
+      let endPhienn = await phienLamViecModel.findOneAndUpdate(
+        {
+          username: req.body.username,
+          active: true,
+        },
+        {
+          active: false,
+          ketThuc: new Date(Date.now()),
+          thoiGianLam: getHouseBetweenTwoDate(new Date(phienDangLam.batDau).getTime(), new Date(Date.now()).getTime()),
+        }
+      );
+      let listPhien = (await phienLamViecModel.find({ username: req.query.username })) as [];
+      return res.json({ count: listPhien.length, result: listPhien });
     } catch (error) {
       console.log(error);
+      return error;
     }
   }
   //GET danh sach gio đã làm ở công ty
@@ -143,6 +118,7 @@ export default new (class PhienLamViec {
         thoiGianLam: phien.thoiGianLam,
         active: phien.active,
         salaryScale: resultSalaryScale,
+        username: phien.username,
       }));
       console.log(result);
       return res.json(result);
@@ -154,7 +130,7 @@ export default new (class PhienLamViec {
   //GET danh sach gio đã làm nv
   async traCuuThongTinGioLamNhanVien(req, res) {
     console.log(req.query.idNhanVien);
-    
+
     try {
       let listGioLamCongTy = await phienLamViecModel.find({
         idNhanVien: req.query.idNhanVien,
@@ -236,10 +212,7 @@ export default new (class PhienLamViec {
         }
       });
 
-
-
       let result = traCuuThongTin.map((phien) => ({
-
         ngay: phien.batDau,
         name: phien.name,
         batDau: phien.batDau,
@@ -276,7 +249,7 @@ export default new (class PhienLamViec {
         thoiGianLam: phien.thoiGianLam,
         active: phien.active,
         salaryScale: resultSalaryScale,
-        idNhanVien: salaryScale.idNhanVien,
+        username: salaryScale.username,
       }));
       console.log(result);
       return res.json(result);

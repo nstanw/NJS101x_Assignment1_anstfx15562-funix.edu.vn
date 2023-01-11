@@ -3,6 +3,7 @@ const { Schema } = mongoose;
 
 const QuanLySchema = new Schema({
   id: String,
+  name: String,
   nguoiQuanLy: Array,
   role: String,
 });

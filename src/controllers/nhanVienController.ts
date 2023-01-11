@@ -24,6 +24,8 @@ export default new (class NhanVienController {
   }
 
   //GET thông tin nhân viên
+  //- input: username
+  //- thông tin nhân viên chứa cả acctive
   async getNhanVien(req, res) {
     try {
       let infoNhanVien = await nhanVienModel.findOne({ gmail: "admin@admin.com" });
@@ -35,7 +37,11 @@ export default new (class NhanVienController {
   }
 
   //PATCH image link
+  //- input:username, link ảnh or path ảnh
+  //-output: user
   async editLinkImage(req, res) {
+    console.log(req.body.image);
+    
     try {
       let infoNhanVien = await nhanVienModel.findOneAndUpdate({ gmail: "admin@admin.com" }, { image: req.body.image }, { returnDocument: "after" });
       console.log(infoNhanVien);

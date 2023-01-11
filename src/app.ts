@@ -24,21 +24,27 @@ class App {
     // getting-started.js
 
     // mở cros
-    this.app.use(cors());
+    const corsOptions = {
+      origin: "http://localhost:3000",
+      credentials: true, //access-control-allow-credentials:true
+      optionSuccessStatus: 200,
+    };
+    this.app.use(cors(corsOptions));
 
     //logger
     this.app.use(morgan("dev"));
 
     // hiện tại em mong muốn hiểu là tại sao em không truy cập được file trong public
-    
-    //setstatic path 
-    this.app.use(express.static(path.join(__dirname, "public")));
+
+    //setstatic path
+    this.app.use("/Resource/images", express.static(path.join(__dirname, "../Resource/images")));
+    console.log(path.join(__dirname, "../Resource"));
 
     // cài đặt upload ảnh
     //cài đặt vị trí lưu và tên file
     const storage = multer.diskStorage({
       destination: (req, file, cb) => {
-        cb(null, "/Resource/");
+        cb(null, path.join(__dirname, "../Resource/images"));
       },
       filename: (req, file, cb) => {
         const fileImgName = Date.now().toString() + "-" + file.originalname;
@@ -57,12 +63,12 @@ class App {
     this.app.use(multer({ storage: storage, fileFilter: fileFilter }).single("file"));
 
     this.app.post("/upload", (req: any, res) => {
-      console.log("/upload",req.file);
+      console.log("/upload", req.file);
 
       if (!req.file) {
         return res.json({ success: false });
       }
-      return res.json({ success: true });
+      return res.json({ path: req.file.path });
     });
 
     main().catch((err) => console.log(err));
