@@ -12,6 +12,7 @@ const nhanVienSchema = new Schema({
     active: Boolean,
     username: String,
     phepNam: Number,
+    idNguoiQuanLy: String
 });
 
 export default mongoose.model("nhanVien", nhanVienSchema);

@@ -9,6 +9,10 @@ function Router(app) {
   app.patch("/phienLamViec/ketThucPhienLamViec", userController.protect, phienLamViecController.ketThucPhienLamViec);
   app.get("/phienLamViec/traCuuThongTinGioLamCongTy", userController.protect, phienLamViecController.traCuuThongTinGioLamCongTy);
   app.get("/phienLamViec/getLuongTheoThang", userController.protect, phienLamViecController.getLuongTheoThang);
+  
+  app.get("/phienLamViec/traCuuThongTinGioLamNhanVienTheoNgay", userController.protect, phienLamViecController.traCuuThongTinGioLamNhanVienTheoNgay);
+
+  app.get("/phienLamViec/getInfoQuanLy", userController.protect, phienLamViecController.getInfoQuanLy);
 
   // dang ki phep
   app.get("/nghiPhep/getThongTinNghiPhepNV", userController.protect, nghiPhepController.getThongTinNghiPhepNV);
