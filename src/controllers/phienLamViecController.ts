@@ -311,7 +311,8 @@ export default new (class {
   }
 
   //GET lương tháng
-
+//-input : thang
+//-output : luong
   async getLuongTheoThang(req, res, next) {
     try {
       const username = req.decoded.username;
@@ -323,7 +324,7 @@ export default new (class {
       let salaryScale = await nhanVienModel.findOne({ username: req.decoded.username });
       let resultSalaryScale = salaryScale.salaryScale;
 
-      let listTheoThang = listGioLamCongTy.filter((d) => new Date(d.ketThuc).getMonth() + 1 === parseInt(req.body.thang)); // cgeckk boddy -> query
+      let listTheoThang = listGioLamCongTy.filter((d) => new Date(d.batDau).getMonth() + 1 === parseInt(req.query.thang)); // cgeckk boddy -> query
 
       // tính sô giờ làm mỗi ngày
       //->số giờ làm -> giờ thiếu
@@ -374,6 +375,8 @@ export default new (class {
         overTime: overTime,
         gioLamThieu: thoiGianLamThieu + thoiGianDangKiNghiPhep,
         luong: luong,
+        thoiGianDangKiNghiPhep: thoiGianDangKiNghiPhep,
+        
       };
 
       console.log(chiTietLuong);
