@@ -36,6 +36,16 @@ const QuanLyGioLam = () => {
   const navigate = useNavigate();
 
   React.useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    if (token) {
+     navigate("/login");
+    }
+    if (role !== "admin") {
+      navigate("/login");
+    return message.error("Bạn không thể truy cập trang này");
+    }
+
     (async function run() {
       let getNhanVienMinhQuanLy: any[] = await quanLyService.getNhanVienMinhQuanLy();
       // let optioneNhanVien = getNhanVienMinhQuanLy.map((nhanVien) => ({ label: nhanVien.name, key: nhanVien._id, value: nhanVien.idNhanVien }));
