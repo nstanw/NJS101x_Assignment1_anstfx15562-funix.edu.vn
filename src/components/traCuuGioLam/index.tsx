@@ -115,13 +115,13 @@ const TraCuuGioLam = () => {
     },
     {
       title: "Số ngày phép đã đăng kí",
-      dataIndex: "annualLeave",
-      key: "annualLeavel",
+      dataIndex: "thoiGianDangKiNghiPhep",
+      key: "thoiGianDangKiNghiPhep",
     },
     {
       title: "Số giờ tăng ca",
-      dataIndex: "lamThem",
-      key: "lamTheml",
+      dataIndex: "overTime",
+      key: "overTime",
     },
     {
       title: "Số giờ làm thiếu",
