@@ -79,7 +79,7 @@ export default new (class {
       return res.json({ error: "Nhân viên đang trong phiên làm việc" });
     }
     //update active nhân viên
-    let updateActive = await nhanVienModel.findOneAndUpdate({ username: req.body.username }, { active: true });
+     await nhanVienModel.findOneAndUpdate({ username: req.decoded.username }, { active: true });
 
     //thêm phiên
     let newPhien = new phienLamViecModel({
@@ -376,7 +376,7 @@ export default new (class {
         gioLamThieu: thoiGianLamThieu + thoiGianDangKiNghiPhep,
         luong: luong,
         thoiGianDangKiNghiPhep: thoiGianDangKiNghiPhep,
-        
+
       };
 
       console.log(chiTietLuong);
