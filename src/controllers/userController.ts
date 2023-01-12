@@ -76,13 +76,14 @@ export default new (class jwtAuth {
       const payload = {
         userId: user._id,
         username: user.username,
+        role: user.role,
       };
 
       // tạo token
       const token = jwt.sign(payload, secretKey);
 
       // trả về token
-      return res.json([{ token: token, username }]);
+      return res.json([{ token: token, username, role: payload.role }]);
     });
 
     //FE nhận và lưu lại gửi kèm request

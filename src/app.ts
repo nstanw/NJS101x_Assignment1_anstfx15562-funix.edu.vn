@@ -3,6 +3,7 @@ import * as cors from "cors";
 const phienLamViecRouter = require("./routes/phienLamViecRouter");
 const nhanVienRouter = require("./routes/nhanVienRouter");
 const authRouter = require("./routes/userRouter");
+const quanLyRouter = require("./routes/quanLyRouter");
 const mongoose = require("mongoose");
 import * as morgan from "morgan";
 import * as path from "path";
@@ -78,10 +79,11 @@ class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded());
 
-    // Router
+    // Router 
     phienLamViecRouter(this.app);
     nhanVienRouter(this.app);
     authRouter(this.app);
+    quanLyRouter(this.app);
   }
 }
 
