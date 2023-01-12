@@ -5,8 +5,8 @@ import nhanVienController from "../Controllers/nhanVienController";
 function Router(app) {
 
   app.get("/getNhanVien",authController.protect, nhanVienController.getNhanVien)
-  app.post("/addNhanVien", nhanVienController.addNhanVien)
-  app.patch("/editLinkImage", nhanVienController.editLinkImage)
+  app.post("/addNhanVien",authController.protect, nhanVienController.addNhanVien)
+  app.patch("/editLinkImage",authController.protect, nhanVienController.editLinkImage)
 
   // covid
   app.patch("/covid/dangKiThongTinThanNhiet", covidController.dangKiThongTinThanNhiet)

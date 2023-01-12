@@ -35,6 +35,8 @@ export default new (class NhanVienController {
   }
 
   //PATCH image link
+  //- input:username, link ảnh or path ảnh
+  //-output: user
   async editLinkImage(req, res) {
     try {
       let infoNhanVien = await nhanVienModel.findOneAndUpdate({username: req.decoded.username }, { image: req.body.image }, { returnDocument: "after" });
