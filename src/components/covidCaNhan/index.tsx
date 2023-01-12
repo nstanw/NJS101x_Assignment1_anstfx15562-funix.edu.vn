@@ -10,8 +10,7 @@ const CovidCaNhan = () => {
   const navigate = useNavigate();
   React.useEffect(() => {
     (async function run() {
-      const username = "nv1"
-      const result = await phienLamViecService.getActive(username);
+      const result = await phienLamViecService.getActive();
       if (!result.isAuth) {
         return  navigate("/login");
       }

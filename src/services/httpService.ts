@@ -8,19 +8,21 @@ const http = axios.create({
   timeout: 30000,
 });
 
-//   http.interceptors.request.use(
-//     function(config) {
+let token = localStorage.getItem("token");
+http.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+   http.interceptors.request.use(
+  function(config) {
 //       if (!!abp.auth.getToken()) {
 //         config.headers.common['Authorization'] = 'Bearer ' + abp.auth.getToken();
 //       }
 //       config.headers.common['.AspNetCore.Culture'] = abp.utils.getCookieValue('Abp.Localization.CultureName');
 //       config.headers.common['Abp.TenantId'] = abp.multiTenancy.getTenantIdCookie();
-//       return config;
-//     },
-//     function(error) {
-//       return Promise.reject(error);
-//     }
-//   );
+      return config;
+   },
+    function(error) {
+      return Promise.reject(error);
+     }
+  );
 
 
 http.interceptors.response.use(

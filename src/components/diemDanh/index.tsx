@@ -27,8 +27,7 @@ const DiemDanh: React.FC = () => {
       //kiểm tra xem có đang active hay không
       //- nếu active = false -> hiển thị điểm danh
       //- nếu active = true -> table đang làm và nút checkout
-      const username = "nv1";
-      const result = await phienLamViecService.getActive(username);
+      const result = await phienLamViecService.getActive();
       // if (!result.isAuth) {
       //   message.error("Vui lòng đăng nhập!");
       //   return navigate("/login");
@@ -36,7 +35,7 @@ const DiemDanh: React.FC = () => {
       console.log(result);
       setName(result.name);
       if (result.active) {
-        const result = await phienLamViecService.getActive(username);
+        const result = await phienLamViecService.getActive();
         setPhienLamViecHienTai([result]);
         return setIsActive(result.active);
       }
@@ -50,8 +49,7 @@ const DiemDanh: React.FC = () => {
 
     if (values) {
       try {
-        const username = "nv1";
-        let phienLamViec = await phienLamViecService.addPhienLamViec(username, values.noiLam.label);
+        let phienLamViec = await phienLamViecService.addPhienLamViec( values.noiLam.label);
         console.log(phienLamViec);
         setPhienLamViecHienTai(phienLamViec);
       } catch (error) {
@@ -161,8 +159,7 @@ const DiemDanh: React.FC = () => {
           disabled={!isActive}
           onClick={async () => {
             try {
-              const username = "nv1";
-              let phienLamViecs = await phienLamViecService.ketThucPhienLamViec(username);
+              let phienLamViecs = await phienLamViecService.ketThucPhienLamViec();
               phienLamViecs = phienLamViecs.filter((d: any) => new Date(d.batDau).getDate() === new Date(Date.now()).getDate());
               setListPhienLamViec(phienLamViecs);
               setIsActive(!isActive);

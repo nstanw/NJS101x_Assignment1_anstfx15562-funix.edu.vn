@@ -1,13 +1,13 @@
 import http from "./httpService";
 
 class PhienLamViecService {
-  public async getActive(username: string) {
-    let result = await http.get("/phienLamViec/getActive", { params: { username: username } });
+  public async getActive() {
+    let result = await http.get("/phienLamViec/getActive");
     return result.data;
   }
 
-  public async addPhienLamViec(username: string, noiLam: string) {
-    let result = await http.post("/phienLamViec/addPhienLamViec", { username: username, noiLam: noiLam });
+  public async addPhienLamViec( noiLam: string) {
+    let result = await http.post("/phienLamViec/addPhienLamViec", { noiLam: noiLam });
     return result.data;
   }
 
@@ -21,8 +21,8 @@ class PhienLamViecService {
     return result.data;
   }
 
-  public async ketThucPhienLamViec(username: string) {
-    let result = await http.patch("/phienLamViec/ketThucPhienLamViec", { username: username });
+  public async ketThucPhienLamViec() {
+    let result = await http.patch("/phienLamViec/ketThucPhienLamViec");
     return result.data;
   }
 
