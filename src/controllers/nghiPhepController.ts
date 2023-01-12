@@ -6,7 +6,7 @@ export default new (class {
     try {
       let phepConLai = await nhanVienModel.findOne({ username: req.decoded.username });
       console.log(phepConLai);
-      return res.json({ soNgayPhepConLai: phepConLai.annualLeave });
+      return res.json({ soNgayPhepConLai: Math.round((phepConLai.annualLeave)*100)/100 });
     } catch (err) {
       return res.json(err);
     }
@@ -58,12 +58,15 @@ export default new (class {
           });
 
           // thêm đăng kí
-          async () => await dangKiPhep.save();
+         ( async () => await dangKiPhep.save())(); 
 
           // cập nhật ngày phép còn lại
           // trừ vào số phép còn lại và tạo document phép mới theo từng ngày để phục vụ tính giờ sau này
           const annualLeave = phepConLai.annualLeave - 1;
-          capNhatNgayPhepConLai = async () => await nhanVienModel.findOneAndUpdate({ username: req.decoded.username }, { annualLeave: annualLeave }, { upsert: true });
+         (async () => await nhanVienModel.findOneAndUpdate({ username: req.decoded.username }, { annualLeave: annualLeave }, { upsert: true }))();
+
+          console.log("capNhatNgayPhepConLai",capNhatNgayPhepConLai);
+          
         });
       }
       // th đăng kí 1 ngày

@@ -3,7 +3,6 @@ import phienLamViecModel from "../Models/phienLamViecModel";
 import { getHouseBetweenTwoDate } from "../util/getHouseBetweenTwoDate";
 import nghiPhepModel from "../Models/nghiPhepModel";
 
-
 //- get phiên làm việc trong ngày
 // get danh sách các phiên
 
@@ -48,7 +47,8 @@ type ITraCuuGioLamViecDto = ITraCuuGioLamViec[];
 export default new (class {
   //GET active
   async getActive(req, res) {
-    let checkActive = await nhanVienModel.findOne({ username: req.query.username });
+    const username = req.decoded.username;
+    let checkActive = await nhanVienModel.findOne({ username: username });
     return res.send(checkActive);
   }
 
@@ -67,7 +67,7 @@ export default new (class {
   // - noiLam
   async addPhienLamViec(req, res, next) {
     // input noiLam: string
-    let nhanVien = await nhanVienModel.findOne({ username: req.body.username });
+    let nhanVien = await nhanVienModel.findOne({ username: req.decoded.username});
 
     if (nhanVien.active) {
       return res.json({ error: "Nhân viên đang trong phiên làm việc" });
@@ -122,7 +122,7 @@ export default new (class {
     //xác định phiên đang hoạt động
     let phienDangHoatDong = await phienLamViecModel.findOne({ username: req.decoded.username, active: true });
 
-    //thay đổi phiên đó    
+    //thay đổi phiên đó
     try {
       let thoiGianLam = getHouseBetweenTwoDate(Date.now(), new Date(phienDangHoatDong.batDau).getTime());
       let setThoiGianKetThuc = {
@@ -130,7 +130,7 @@ export default new (class {
         thoiGianLam: thoiGianLam,
         active: false,
       };
-      const username = req.decoded.username
+      const username = req.decoded.username;
       //update thời gian kết thúc và tính thời gian đã làm
       await phienLamViecModel.findOneAndUpdate({ username: username, active: true }, setThoiGianKetThuc, { returnDocument: "after" });
 
@@ -149,7 +149,7 @@ export default new (class {
       const username = req.decoded.username;
       let listGioLamCongTy = await phienLamViecModel.find({
         username: username,
-        noiLam: "Công Ty"
+        noiLam: "Công Ty",
       });
 
       // hệ số lương
@@ -158,7 +158,7 @@ export default new (class {
 
       //kiểm tra ngày đó có đăng kí phép không. phép mấy tiếng
       let listDangKiPhep = await nghiPhepModel.find({
-        username: username
+        username: username,
       });
 
       let result = listGioLamCongTy.map((phien) => {
@@ -167,9 +167,9 @@ export default new (class {
           gioLamThem = phien.thoiGianLam - 8;
         } else {
           gioLamThem = 0;
-        };
-        return ({
-          // tính toán các trường cần trả về: 
+        }
+        return {
+          // tính toán các trường cần trả về:
           ngay: phien.batDau,
           name: phien.name,
           batDau: phien.batDau,
@@ -179,13 +179,12 @@ export default new (class {
           thoiGianLam: phien.thoiGianLam,
           active: phien.active,
           annualLeave: annualLeave,
-        })
-      }
-      );
+        };
+      });
 
       // xác định nhân viên làm bao nhiêu ngày
-      const listNgayLamViec = new Set(result.map(d => d.ngay));
-      listNgayLamViec.forEach(ngay => {
+      const listNgayLamViec = new Set(result.map((d) => d.ngay));
+      listNgayLamViec.forEach((ngay) => {
         // Kiểm tra  trong ngày còn đang làm hay không
         let checkActiveCuaPhienNgayCuThe = result.filter((phien: any) => phien.active === false);
         //Nếu không có phiên nào hoạt động
@@ -194,7 +193,7 @@ export default new (class {
           const listPhienCuaNgayCuThe = result.filter((date: any) => date.ngay === ngay);
 
           //chi tiêt ngày: bắt đầu, kết thúc, thời gian làm, làm thêm
-          const tongThoiGianLam = listPhienCuaNgayCuThe.map(d => d.thoiGianLam).reduce((preValue, currentValue) => preValue + currentValue, 0);
+          const tongThoiGianLam = listPhienCuaNgayCuThe.map((d) => d.thoiGianLam).reduce((preValue, currentValue) => preValue + currentValue, 0);
 
           let lamThemGio = tongThoiGianLam < 8 ? 0 : tongThoiGianLam - 8;
 
@@ -247,10 +246,9 @@ export default new (class {
       let overTimeArr = [];
       let gioLamThieuArr = [];
 
-
       // xác định nhân viên làm bao nhiêu ngày
-      const listNgayLamViec = new Set(listGioLamCongTy.map(d => d.ngay));
-      listNgayLamViec.forEach(ngay => {
+      const listNgayLamViec = new Set(listGioLamCongTy.map((d) => d.ngay));
+      listNgayLamViec.forEach((ngay) => {
         // Kiểm tra  trong ngày còn đang làm hay không
         let checkActiveCuaPhienNgayCuThe = listGioLamCongTy.filter((phien: any) => phien.active === false);
         //Nếu không có phiên nào hoạt động
@@ -259,7 +257,7 @@ export default new (class {
           const listPhienCuaNgayCuThe = listGioLamCongTy.filter((date: any) => date.ngay === ngay);
 
           //chi tiêt ngày: bắt đầu, kết thúc, thời gian làm, làm thêm
-          const tongThoiGianLam = listPhienCuaNgayCuThe.map(d => d.thoiGianLam).reduce((preValue, currentValue) => preValue + currentValue, 0);
+          const tongThoiGianLam = listPhienCuaNgayCuThe.map((d) => d.thoiGianLam).reduce((preValue, currentValue) => preValue + currentValue, 0);
 
           let lamThemGio;
           let gioLamThieu;
@@ -283,7 +281,7 @@ export default new (class {
       let thoiGianDangKiNghi = await nhanVienModel.findOne({ username: username });
       let thoiGianDangKiNghiPhep = (thoiGianDangKiNghi.phepNam - thoiGianDangKiNghi.annualLeave) * 8;
 
-      let luong = Math.round((resultSalaryScale * 3000000 + (overTime - thoiGianLamThieu + thoiGianDangKiNghiPhep) * 200000))
+      let luong = Math.round(resultSalaryScale * 3000000 + (overTime - thoiGianLamThieu + thoiGianDangKiNghiPhep) * 200000);
       let chiTietLuong = {
         name: listTheoThang[0].name,
         salaryScale: resultSalaryScale,
