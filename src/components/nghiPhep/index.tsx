@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, DatePicker, Form, Input, message, Switch } from "antd";
 import nghiPhepService, { IDangKiNghiPhepInput } from "../../services/nghiPhepService";
+import { useNavigate } from "react-router-dom";
 
 const { RangePicker } = DatePicker;
 
@@ -10,7 +11,13 @@ const NghiPhep: React.FC = () => {
   const [soNgayPhepDangKi, setSoNgayPhepDangKi] = React.useState(0);
   const [isChange, setIsChange] = React.useState(false);
 
+  const navigate = useNavigate();
   React.useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+
     (async function run() {
       let PhepConLai = await nghiPhepService.getNgayPhepConLai();
       setSoNgayPhepConLai(PhepConLai.soNgayPhepConLai);

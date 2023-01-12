@@ -31,11 +31,11 @@ const EditThongTinCaNhan: React.FC = () => {
   const [fileList, setFileList] = React.useState<any[]>([]);
 
   const getInfo = async function run() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
     let nhanVienInfo = await nhanVienService.getNhanVien();
-    // if (!nhanVienInfo.isAuth) {
-    //   message.error("Vui lòng đăng nhập!");
-    //   return navigate("/login");
-    // }
     setNhanVien({
       ...nhanVienInfo,
       doB: new Date(nhanVienInfo.doB).toLocaleDateString(),

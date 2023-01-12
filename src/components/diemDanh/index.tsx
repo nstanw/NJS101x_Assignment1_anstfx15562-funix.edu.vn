@@ -24,6 +24,11 @@ const DiemDanh: React.FC = () => {
   // check active
   React.useEffect(() => {
     (async function run() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+       navigate("/login");
+      }
+
       //kiểm tra xem có đang active hay không
       //- nếu active = false -> hiển thị điểm danh
       //- nếu active = true -> table đang làm và nút checkout

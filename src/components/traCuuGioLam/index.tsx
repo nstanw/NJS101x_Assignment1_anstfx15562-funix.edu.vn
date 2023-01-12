@@ -1,5 +1,5 @@
-import { Button, Col, Form, message, Row, Select, Space, Table } from "antd";
-import React from "react";
+import { Button, Col, Form, message, Pagination, Row, Select, Space, Table } from "antd";
+import React, { useState } from "react";
 import phienLamViecService from "../../services/phienLamViecService";
 import Search from "./search";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +27,9 @@ interface ITraCuuGioLamViec {
 type ITraCuuGioLamViecDto = ITraCuuGioLamViec[];
 
 const TraCuuGioLam = () => {
+  const [currentPage, setCurrentPage] = useState(1); // trang hiện tại
+  const [pageSize, setPageSize] = useState(10); // số dòng trên mỗi trang
+
   const [listTraCuuState, setListTraCuuState] = React.useState<any[]>();
   const [infoQuanLy, setInfoQuanLy] = React.useState<any>();
   const [chiTietLuong, setChiTietLuong] = React.useState<any>();
@@ -36,6 +39,11 @@ const TraCuuGioLam = () => {
   const navigate = useNavigate();
 
   React.useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+
     (async function run() {
       try {
         let gioLamTheoNgay = await phienLamViecService.traCuuThongTinGioLamNhanVienTheoNgay();
@@ -139,6 +147,19 @@ const TraCuuGioLam = () => {
     }
   };
 
+  const handlePageSizeChange = (size: any) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  };
+
+  const pagination = {
+    current: currentPage,
+    pageSize: pageSize,
+    onChange: handlePageSizeChange,
+    showSizeChanger: true,
+    onShowSizeChange: handlePageSizeChange,
+  };
+
   return (
     <div className="traCuuGioLam">
       <Search
@@ -172,23 +193,27 @@ const TraCuuGioLam = () => {
         </Row>
       </Form>
       {!isFilter ? (
-        <Form {...layout} name="control-hooks">
-          <h2>Danh sách giờ đã làm</h2>
-          <Table
-            dataSource={listTraCuuState ? listTraCuuState.map((d: any, index: any) => ({ ...d, key: index })) : []}
-            columns={[
-              ...columnsTableListPhien,
-              {
-                title: "Trạng thái",
-                dataIndex: "active",
-                key: "active",
-                render: (value: boolean, record: any, index) => {
-                  return <span key={value.toString() + index.toString()}>{value ? "Đang làm" : "Không làm"}</span>;
+        <>
+          <Form {...layout} name="control-hooks">
+            <h2>Danh sách giờ đã làm</h2>
+            <Table
+              pagination={pagination}
+              dataSource={listTraCuuState ? listTraCuuState.map((d: any, index: any) => ({ ...d, key: index })) : []}
+              columns={[
+                ...columnsTableListPhien,
+                {
+                  title: "Trạng thái",
+                  dataIndex: "active",
+                  key: "active",
+                  render: (value: boolean, record: any, index) => {
+                    return <span key={value.toString() + index.toString()}>{value ? "Đang làm" : "Không làm"}</span>;
+                  },
                 },
-              },
-            ]}
-          />
-        </Form>
+              ]}
+            />
+          </Form>
+          {/* <Pagination style={{ marginTop: 10 }} {...pagination} /> */}
+        </>
       ) : (
         <Form {...layout} name="control-hooks">
           <h2>Danh sách giờ đã làm</h2>

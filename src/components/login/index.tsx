@@ -3,19 +3,24 @@ import { Button, Form, Input, message } from "antd";
 import userService, { ILoginInput } from "../../services/userService";
 import { useNavigate } from "react-router-dom";
 
-
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const onFinish = async (values: any) => {
+    console.log("Success:", values);
     try {
       const input: ILoginInput = {
         username: values.username,
         password: values.password,
       };
+      console.log("input:", input);
       let login = await userService.login(input);
-      message.success(login.mess);
+      console.log(login);
+      localStorage.setItem("token", login[0].token);
+      localStorage.setItem("username", login[0].username);
+      localStorage.setItem("role", login[0].role);
+
+      message.success("Đăng nhập thành công");
       navigate("/diemDanh");
-      console.log("Success:", values);
     } catch (error) {
       console.log("Failed:", error);
     }

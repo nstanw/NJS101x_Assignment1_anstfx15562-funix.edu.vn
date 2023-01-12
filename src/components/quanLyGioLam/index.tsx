@@ -38,10 +38,9 @@ const QuanLyGioLam = () => {
   React.useEffect(() => {
     (async function run() {
       let getNhanVienMinhQuanLy: any[] = await quanLyService.getNhanVienMinhQuanLy();
-      let optioneNhanVien = getNhanVienMinhQuanLy.map((nhanVien) => ({ label: nhanVien.name, key: nhanVien._id, value: nhanVien.idNhanVien }));
-      console.log("optioneNhanVien", optioneNhanVien);
-
-      setOptioneNhanVien(optioneNhanVien);
+      // let optioneNhanVien = getNhanVienMinhQuanLy.map((nhanVien) => ({ label: nhanVien.name, key: nhanVien._id, value: nhanVien.idNhanVien }));
+      console.log("getNhanVienMinhQuanLy", getNhanVienMinhQuanLy);
+      // setOptioneNhanVien(optioneNhanVien);
     })();
   }, []);
 
