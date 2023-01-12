@@ -56,7 +56,7 @@ const NghiPhep: React.FC = () => {
       const values = {
         lyDo: fieldsValue.lyDo,
         ngayDangKiPhep: fieldsValue["date-picker"].format("YYYY-MM-DD"),
-        soNgayDangKiNghi: fieldsValue.soGioNghi / 8,
+        soNgayDangKiNghi: fieldsValue.soGioNghi,
       };
 
       const input: IDangKiNghiPhepInput = {

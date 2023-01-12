@@ -35,7 +35,7 @@ const DiemDanh: React.FC = () => {
       console.log(result);
       setName(result.name);
       if (result.active) {
-        const result = await phienLamViecService.getActive();
+        const result = await phienLamViecService.getPhienDangLam();
         setPhienLamViecHienTai([result]);
         return setIsActive(result.active);
       }

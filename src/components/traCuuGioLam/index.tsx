@@ -1,4 +1,4 @@
-import { Button, Form, message, Select, Space, Table } from "antd";
+import { Button, Col, Form, message, Row, Select, Space, Table } from "antd";
 import React from "react";
 import phienLamViecService from "../../services/phienLamViecService";
 import Search from "./search";
@@ -28,6 +28,7 @@ type ITraCuuGioLamViecDto = ITraCuuGioLamViec[];
 
 const TraCuuGioLam = () => {
   const [listTraCuuState, setListTraCuuState] = React.useState<any[]>();
+  const [infoQuanLy, setInfoQuanLy] = React.useState<any>();
   const [chiTietLuong, setChiTietLuong] = React.useState<any>();
   const [showLuong, setShowLuong] = React.useState(false);
   const [listFilter, setListFilter] = React.useState<any>(listTraCuuState);
@@ -37,59 +38,11 @@ const TraCuuGioLam = () => {
   React.useEffect(() => {
     (async function run() {
       try {
-        // get toàn bộ phiên về
-        let listTraCuuGioLam = await phienLamViecService.traCuuThongTinGioLamCongTy();
-        // if (!listTraCuuGioLam.isAuth) {
-        //   message.error("Vui lòng đăng nhập!");
-        //   return navigate("/login");
-        // }
-        // get các ngày có trong phiên
-        const cacNgayCoTrongPhien: Set<number> = new Set(listTraCuuGioLam.map((date: any) => new Date(date.ngay).getDay()));
+        let gioLamTheoNgay = await phienLamViecService.traCuuThongTinGioLamNhanVienTheoNgay();
+        setListTraCuuState(gioLamTheoNgay);
 
-        // duyệt vào các ngày. tính thông tin lương
-        let traCuuThongTin: any[] = [];
-        let sum; // tổng giờ làm
-
-        //#region  Tra cứu giờ làm
-
-        cacNgayCoTrongPhien.forEach((ngay) => {
-          // nhóm các phiên làm trong ngày vào 1 mảng
-          const listPhienCuaNgayCuThe: ITraCuuGioLamViecDto = listTraCuuGioLam.filter((date: any) => new Date(date.ngay).getDay() === ngay);
-
-          // Kiểm tra  trong ngày còn đang làm hay không
-          let checkActiveCuaPhienNgayCuThe = listPhienCuaNgayCuThe.filter((phien: any) => phien.active === false);
-
-          //Nếu không có phiên nào hoạt động
-          if (listPhienCuaNgayCuThe.length === checkActiveCuaPhienNgayCuThe.length) {
-            // nếu phiên cuối thì tính thời gian làm trong ngày
-            const thoiGianLamTrongNgay = listPhienCuaNgayCuThe.map((thoiGianLam) => thoiGianLam.thoiGianLam);
-            sum = thoiGianLamTrongNgay.reduce((accumulator: number, currentValue: any) => accumulator + currentValue, 0);
-
-            let lamThemGio = sum < 8 ? 0 : sum - 8;
-            // dữ liệu render ra UI
-            let rowTraCuuGioLamViec = {
-              ...checkActiveCuaPhienNgayCuThe[0],
-              ketThuc: checkActiveCuaPhienNgayCuThe[checkActiveCuaPhienNgayCuThe.length - 1].ketThuc,
-              thoiGianLam: Math.round(sum * 100) / 100,
-              lamThem: lamThemGio,
-            };
-            traCuuThongTin.push(rowTraCuuGioLamViec);
-            setListTraCuuState(traCuuThongTin);
-
-            return;
-          }
-          // dữ liệu render ra UI
-          let rowTraCuuGioLamViec = {
-            ...listPhienCuaNgayCuThe[0],
-            ketThuc: null,
-            thoiGianLam: null,
-            active: true,
-            lamThem: null,
-          };
-          traCuuThongTin.push(rowTraCuuGioLamViec);
-          setListTraCuuState(traCuuThongTin);
-          return;
-        });
+        let infoQuanLy = await phienLamViecService.getInfoQuanLy();
+        setInfoQuanLy(infoQuanLy);
         //#endregion
       } catch (error) {
         console.log("Failed:", error);
@@ -143,9 +96,9 @@ const TraCuuGioLam = () => {
       key: "lamThem",
     },
     {
-      title: "Đăng kí nghỉ phép",
-      dataIndex: "annualLeave",
-      key: "annualLeave",
+      title: "Giờ đăng kí nghỉ phép",
+      dataIndex: "soGioDangKiPhep",
+      key: "soGioDangKiPhep",
     },
   ];
 
@@ -196,7 +149,28 @@ const TraCuuGioLam = () => {
         }}
         onCandle={() => setIsFilter(false)}
       />
-      <QuanLy />
+      <Form>
+        <Row gutter={24}>
+          <Col key="q" span={12}></Col>
+          <Col key="idQuanLy" span={12}>
+            <Form.Item label="ID quản lý">
+              <span>{infoQuanLy ? infoQuanLy.id : ""}</span>
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={24}>
+          <Col key="q" span={12}>
+            {/* <Form.Item label="Tìm kiếm" name="q">
+            <Input placeholder="Tìm kiếm" />
+          </Form.Item> */}
+          </Col>
+          <Col key="nameQuanLy" span={12}>
+            <Form.Item label="Tên quản lý">
+              <span>{infoQuanLy ? infoQuanLy.name : ""}</span>
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
       {!isFilter ? (
         <Form {...layout} name="control-hooks">
           <h2>Danh sách giờ đã làm</h2>

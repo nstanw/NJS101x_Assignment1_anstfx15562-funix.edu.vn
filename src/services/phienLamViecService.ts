@@ -5,14 +5,29 @@ class PhienLamViecService {
     let result = await http.get("/phienLamViec/getActive");
     return result.data;
   }
+ 
+  public async getPhienDangLam() {
+    let result = await http.get("/phienLamViec/getPhienDangLam");
+    return result.data;
+  }
 
-  public async addPhienLamViec( noiLam: string) {
+  public async getInfoQuanLy() {
+    let result = await http.get("/phienLamViec/getInfoQuanLy");
+    return result.data;
+  }
+
+  public async addPhienLamViec(noiLam: string) {
     let result = await http.post("/phienLamViec/addPhienLamViec", { noiLam: noiLam });
     return result.data;
   }
 
   public async traCuuThongTinGioLamCongTy() {
     let result = await http.get("/phienLamViec/traCuuThongTinGioLamCongTy");
+    return result.data;
+  }
+
+  public async traCuuThongTinGioLamNhanVienTheoNgay() {
+    let result = await http.get("/phienLamViec/traCuuThongTinGioLamNhanVienTheoNgay");
     return result.data;
   }
 
