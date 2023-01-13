@@ -68,13 +68,13 @@ class QuanLyController {
 
         // Kiểm tra còn đang làm hay không, nếu có thêm vào mảng để trả về
         let checkActiveCuaPhien = listPhienOfOneDay.filter((phien: any) => phien.active === true);
-        checkActiveCuaPhien.forEach(element => {
+        checkActiveCuaPhien.forEach((element) => {
           if (checkActiveCuaPhien) {
             let rowPhienDangHoatDong = {
               name: element.name,
-              ngay:  element.ngay,
-              noiLam:  element.noiLam,
-              batDau:  element.batDau,
+              ngay: element.ngay,
+              noiLam: element.noiLam,
+              batDau: element.batDau,
               ketThuc: null,
               thoiGianLam: null,
               active: true,
@@ -92,9 +92,9 @@ class QuanLyController {
 
         let rowTraCuuGioLamViec = {
           name: phienLamXong[0].name,
-          ngay:  phienLamXong[0].ngay,
-          noiLam:  phienLamXong[0].noiLam,
-          batDau:  phienLamXong[0].batDau,
+          ngay: phienLamXong[0].ngay,
+          noiLam: phienLamXong[0].noiLam,
+          batDau: phienLamXong[0].batDau,
           ketThuc: phienLamXong[phienLamXong.length - 1].ketThuc,
           thoiGianLam: Math.round(sum * 100) / 100,
           lamThem: lamThemGio,
@@ -105,6 +105,16 @@ class QuanLyController {
     } catch (error) {
       console.log("Failed:", error);
     }
+  }
+
+  //DELETE: xóa giờ làm đã kết thúc
+  //- giờ làm đã kếu thúc (ngày)
+  //- xóa giờ
+  //- input: phiÊn cần xóa ( _id trả về là duy nhất với phiên)
+  async deleteGioLamKetThuc(req, res) {
+    const id = req.body.id;
+    let deletePhien = await phienLamViecModel.findByIdAndDelete(id);
+    res.json(deletePhien);
   }
 }
 export default new QuanLyController();
