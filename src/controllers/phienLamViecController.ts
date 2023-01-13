@@ -79,7 +79,7 @@ export default new (class {
       return res.json({ error: "Nhân viên đang trong phiên làm việc" });
     }
     //update active nhân viên
-     await nhanVienModel.findOneAndUpdate({ username: req.decoded.username }, { active: true });
+    await nhanVienModel.findOneAndUpdate({ username: req.decoded.username }, { active: true });
 
     //thêm phiên
     let newPhien = new phienLamViecModel({
@@ -188,7 +188,7 @@ export default new (class {
             active: false,
             thoiGianLam: Math.round(sum * 100) / 100,
             lamThem: lamThemGio,
-            soGioDangKiPhep: soGioDangKiPhep.gio
+            soGioDangKiPhep: soGioDangKiPhep.gio,
           };
           traCuuThongTin.push(rowTraCuuGioLamViec);
           return res.json(traCuuThongTin);
@@ -216,20 +216,22 @@ export default new (class {
   }
 
   //GET info quan ly
-  async getInfoQuanLy (req, res){
+  async getInfoQuanLy(req, res) {
     try {
-      let nhanVien = await nhanVienModel.findOne({username: req.decoded.username});
-      let info = await quanLyModel.findOne({id : nhanVien.idNguoiQuanLy})
+      let nhanVien = await nhanVienModel.findOne({ username: req.decoded.username });
+      let info = await quanLyModel.findOne({ id: nhanVien.idNguoiQuanLy });
       res.json(info);
     } catch (error) {
-      res.status(400).json({ error: error});
+      res.status(400).json({ error: error });
     }
   }
 
   //GET danh sach gio đã làm ở công ty
+  //loi
   async traCuuThongTinGioLamCongTy(req, res) {
     try {
-      const username = req.decoded.username;
+      // const username = req.decoded.username;
+      const username = req.query.username;
       let listGioLamCongTy = await phienLamViecModel.find({
         username: username,
         noiLam: "Công Ty",
@@ -269,12 +271,13 @@ export default new (class {
       const listNgayLamViec = new Set(result.map((d) => d.ngay));
       console.log(listNgayLamViec);
 
-      listNgayLamViec.forEach((ngay) => {
-        console.log(ngay);
-        // Kiểm tra  trong ngày còn đang làm hay không
-        let checkActiveCuaPhienNgayCuThe = result.filter((phien: any) => phien.active === false);
-        //Nếu không có phiên nào hoạt động
-        if (result.length === checkActiveCuaPhienNgayCuThe.length) {
+      let traCuuThongTin: any[] = [];
+
+      // Kiểm tra  trong ngày còn đang làm hay không
+      let checkActiveCuaPhienNgayCuThe = result.filter((phien: any) => phien.active === false);
+      //Nếu không có phiên nào hoạt động
+      if (result.length === checkActiveCuaPhienNgayCuThe.length) {
+        listNgayLamViec.forEach((ngay) => {
           // duyệt vào từng ngày
           const listPhienCuaNgayCuThe = result.filter((date: any) => date.ngay === ngay);
 
@@ -289,30 +292,34 @@ export default new (class {
             thoiGianLam: Math.round(tongThoiGianLam * 100) / 100,
             gioLamThem: lamThemGio,
           };
-          // traCuuThongTin.push(rowTraCuuGioLamViec);
-          console.log(rowTraCuuGioLamViec);
-          return res.json(rowTraCuuGioLamViec);
-        }
-        //còn phiên đang làm
-        // dữ liệu render ra UI
-        let rowTraCuuGioLamViec = {
+          traCuuThongTin.push(rowTraCuuGioLamViec);
+          console.log(traCuuThongTin);
+        });
+      }
+
+      //còn phiên đang làm
+      // dữ liệu render ra UI
+      let actice = listGioLamCongTy.filter((d) => d.active);
+      if (actice) {
+        let PhienActive = {
           ...result[0],
           ketThuc: null,
           thoiGianLam: null,
           active: true,
           gioLamThem: null,
         };
-        console.log(result);
-        return res.json(rowTraCuuGioLamViec);
-      });
+        console.log(PhienActive);
+        traCuuThongTin.push(...result);
+      }
+      return res.json(traCuuThongTin);
     } catch (error) {
       return res.json(error);
     }
   }
 
   //GET lương tháng
-//-input : thang
-//-output : luong
+  //-input : thang
+  //-output : luong
   async getLuongTheoThang(req, res, next) {
     try {
       const username = req.decoded.username;
@@ -376,7 +383,6 @@ export default new (class {
         gioLamThieu: thoiGianLamThieu + thoiGianDangKiNghiPhep,
         luong: luong,
         thoiGianDangKiNghiPhep: thoiGianDangKiNghiPhep,
-
       };
 
       console.log(chiTietLuong);
