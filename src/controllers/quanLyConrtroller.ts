@@ -107,14 +107,53 @@ class QuanLyController {
     }
   }
 
+  //GET gioLamTrongThangCuaNhanVien toan bo phien
+  //-input: username nhân viên quản lý
+  //-output: thông tin làm việc các ngày, tháng
+  async getToanBoPhien(req, res) {
+    try {
+      // lấy toàn bộ phiên về
+      //       - Hiển thị danh sách giờ đã làm:
+      // Ngày.
+      // Giờ bắt đầu.
+      // Giờ kết thúc.
+      // Nơi làm việc.
+      // Số giờ được tính là làm thêm. Giờ làm thêm là giờ làm sau 8 tiếng.
+      // Tổng số giờ đã làm của lần bắt đầu/kết thúc này.
+      // Nếu là lần cuối cùng của ngày thì hiện giờ annualLeave đã đăng ký, tổng số giờ làm theo ngày  (số giờ đã làm của cả ngày + giờ đã đăng ký annualLeave).
+      // - Có thể chọn tháng.
+
+      const username = req.query.username;
+      let AllPhien = await phienLamViecModel.find({ username: username });
+
+      return res.json(AllPhien);
+    } catch (error) {
+      console.log("Failed:", error);
+    }
+  }
+
+  //PATCH xác nhận thông tin làm theo tháng
+  // xác định k đc sửa tháng nào
+  async xacNhanThongTinLam(req, res) {
+    const userId = req.decoded.id;
+    const modified = req.body.thang;
+    let xacNhanThongTinLam = await nhanVienModel.findByIdAndUpdate(userId, { modified: modified }, { upsert: true });
+    res.json(xacNhanThongTinLam);
+  }
+
   //DELETE: xóa giờ làm đã kết thúc
-  //- giờ làm đã kếu thúc (ngày)
-  //- xóa giờ
-  //- input: phiÊn cần xóa ( _id trả về là duy nhất với phiên)
   async deleteGioLamKetThuc(req, res) {
-    const id = req.body.id;
-    let deletePhien = await phienLamViecModel.findByIdAndDelete(id);
-    res.json(deletePhien);
+    const userid = req.decoded.userid;
+    const idPhien = req.body.idPhien;
+    const modified = await nhanVienModel.findById(userid);
+    const isModified = modified.modified;
+    let phien = await phienLamViecModel.findById(idPhien);
+    let thangKetThuc = (phien.ketThuc.getMonth() + 1);
+    if (isModified.includes(thangKetThuc)) {
+      return res.status(400).json({ message: "Đã xác nhận không thể thay đổi" });
+    }
+    let deletePhien = await phienLamViecModel.findByIdAndDelete(idPhien);
+    return res.status(200).json(deletePhien);
   }
 }
 export default new QuanLyController();

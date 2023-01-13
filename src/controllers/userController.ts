@@ -83,7 +83,7 @@ export default new (class jwtAuth {
       const token = jwt.sign(payload, secretKey);
 
       // trả về token
-      return res.json([{ token: token, username, role: payload.role }]);
+      return res.json([{ token: token, username, role: payload.role, userId: payload.userId }]);
     });
 
     //FE nhận và lưu lại gửi kèm request

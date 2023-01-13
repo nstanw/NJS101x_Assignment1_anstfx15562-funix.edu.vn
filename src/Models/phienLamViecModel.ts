@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const PhienLamViecSchema = new Schema({
@@ -10,6 +10,7 @@ const PhienLamViecSchema = new Schema({
   ketThuc: Date,
   thoiGianLam: Number,
   username: String,
+
 });
 
 export default mongoose.model("phienLamViec", PhienLamViecSchema);

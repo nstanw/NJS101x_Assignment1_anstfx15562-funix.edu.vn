@@ -91,6 +91,7 @@ export default new (class {
       batDau: new Date(Date.now()),
       ketThuc: null,
       thoiGianLam: null,
+      modified: true,
     });
     try {
       let savePhien = await newPhien.save();
