@@ -32,75 +32,76 @@ class QuanLyController {
     return res.json(allNhanVien);
   }
 
-  //GET danh sach gio đã làm nhân viên theo ngày
+  //GET gioLamTrongThangCuaNhanVien theo ngày
   //-input: username nhân viên quản lý
-  async traCuuThongTinGioLamNhanVien(req, res) {
+  //-output: thông tin làm việc các ngày, tháng
+  async gioLamTrongThangCuaNhanVien(req, res) {
     try {
-      // get toàn bộ phiên về
-      // const username = req.decoded.username;
+      // lấy toàn bộ phiên về
+      // tách từng ngày
+      // tính giờ
+      //công các ngày
+      // thêm các trường liên quan
+      //       - Hiển thị danh sách giờ đã làm:
+      // Ngày.
+      // Giờ bắt đầu.
+      // Giờ kết thúc.
+      // Nơi làm việc.
+      // Số giờ được tính là làm thêm. Giờ làm thêm là giờ làm sau 8 tiếng.
+      // Tổng số giờ đã làm của lần bắt đầu/kết thúc này.
+      // Nếu là lần cuối cùng của ngày thì hiện giờ annualLeave đã đăng ký, tổng số giờ làm theo ngày  (số giờ đã làm của cả ngày + giờ đã đăng ký annualLeave).
+      // - Có thể chọn tháng.
+
       const username = req.query.username;
-      let listTraCuuGioLam = await phienLamViecModel.find({ username: username, noiLam: "Công Ty" });
+      let AllPhien = await phienLamViecModel.find({ username: username });
 
-      // get các ngày có trong phiên
-      const cacNgayCoTrongPhien: Set<number> = new Set(listTraCuuGioLam.map((date: any) => new Date(date.batDau).getDate()));
+      //tách từng ngày
+      const arrayNgay = AllPhien.map((d) => d.batDau.toLocaleDateString());
+      let listNgay = new Set(arrayNgay);
 
-      // duyệt vào các ngày. tính thông tin lương
       let traCuuThongTin: any[] = [];
       let sum; // tổng giờ làm
 
-      //#region  Tra cứu giờ làm
-      cacNgayCoTrongPhien.forEach(async (ngay) => {
-        //kiem tra ngay đó có đăng kí phép hay không
-        let dangKiPheps = await nghiPhepModel.find({ username: username });
-        
-        let ngayDangKiPhep = dangKiPheps.filter((d) => new Date(d.ngay).getDate() === ngay).map((d) => d.ngay); // lo: tra về null
-        let soGioDangKiPhep = await nghiPhepModel.findOne({ username: username, ngay: ngayDangKiPhep });
-        // nhóm các phiên làm trong ngày vào 1 mảng
-        const listPhienCuaNgayCuThe = listTraCuuGioLam.filter((date: any) => new Date(date.batDau).getDate() === ngay);
+      // duyệt các ngày trong tháng
+      listNgay.forEach((ngayLamViec) => {
+        const listPhienOfOneDay = AllPhien.filter((phien) => phien.batDau.toLocaleDateString() === ngayLamViec);
 
-        // Kiểm tra  trong ngày còn đang làm hay không
-        let checkActiveCuaPhienNgayCuThe = listPhienCuaNgayCuThe.filter((phien: any) => phien.active === false);
+        // Kiểm tra còn đang làm hay không, nếu có thêm vào mảng để trả về
+        let checkActiveCuaPhien = listPhienOfOneDay.filter((phien: any) => phien.active === true);
+        checkActiveCuaPhien.forEach(element => {
+          if (checkActiveCuaPhien) {
+            let rowPhienDangHoatDong = {
+              name: element.name,
+              ngay:  element.ngay,
+              noiLam:  element.noiLam,
+              batDau:  element.batDau,
+              ketThuc: null,
+              thoiGianLam: null,
+              active: true,
+              lamThem: null,
+            };
+            traCuuThongTin.push(rowPhienDangHoatDong);
+          }
+        });
 
-        //Nếu không có phiên nào hoạt động
-        if (listPhienCuaNgayCuThe.length === checkActiveCuaPhienNgayCuThe.length) { 
-          // nếu phiên cuối thì tính thời gian làm trong ngày
-          const thoiGianLamTrongNgay = listPhienCuaNgayCuThe.map((thoiGianLam) => thoiGianLam.thoiGianLam);
-          sum = thoiGianLamTrongNgay.reduce((accumulator: number, currentValue: any) => accumulator + currentValue, 0);
+        let phienLamXong = listPhienOfOneDay.filter((phien: any) => phien.active === false);
+        const arrThoiGianLamTrongNgay = phienLamXong.map((thoiGianLam) => thoiGianLam.thoiGianLam);
+        sum = arrThoiGianLamTrongNgay.reduce((accumulator: number, currentValue: any) => accumulator + currentValue, 0);
 
-          let lamThemGio = sum < 8 ? 0 : sum - 8;
-          // dữ liệu render ra UI
-          let rowTraCuuGioLamViec = {
-            name: listTraCuuGioLam[0].name,
-            ngay: listTraCuuGioLam[0].ngay,
-            noiLam: listTraCuuGioLam[0].noiLam,
-            batDau: listTraCuuGioLam[0].batDau,
-            username: listTraCuuGioLam[0].username,
-            ketThuc: listTraCuuGioLam[listTraCuuGioLam.length - 1].ketThuc,
-            active: false,
-            thoiGianLam: Math.round(sum * 100) / 100,
-            lamThem: lamThemGio,
-            soGioDangKiPhep: soGioDangKiPhep.gio
-          };
-          traCuuThongTin.push(rowTraCuuGioLamViec);
-          return res.json(traCuuThongTin);
-        }
-        // dữ liệu render ra UI
+        let lamThemGio = sum < 8 ? 0 : sum - 8;
+
         let rowTraCuuGioLamViec = {
-          name: listTraCuuGioLam[0].name,
-          ngay: listTraCuuGioLam[0].ngay,
-          noiLam: listTraCuuGioLam[0].noiLam,
-          batDau: listTraCuuGioLam[0].batDau,
-          username: listTraCuuGioLam[0].username,
-          ketThuc: null,
-          thoiGianLam: null,
-          active: true,
-          lamThem: null, 
+          name: phienLamXong[0].name,
+          ngay:  phienLamXong[0].ngay,
+          noiLam:  phienLamXong[0].noiLam,
+          batDau:  phienLamXong[0].batDau,
+          ketThuc: phienLamXong[phienLamXong.length - 1].ketThuc,
+          thoiGianLam: Math.round(sum * 100) / 100,
+          lamThem: lamThemGio,
         };
         traCuuThongTin.push(rowTraCuuGioLamViec);
-        return res.json(traCuuThongTin);
       });
-
-      //#endregion
+      return res.json(traCuuThongTin);
     } catch (error) {
       console.log("Failed:", error);
     }
