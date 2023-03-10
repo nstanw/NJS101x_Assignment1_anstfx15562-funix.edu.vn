@@ -1,4 +1,5 @@
 import * as jwt from "jsonwebtoken";
+import nhanVienModel from "../Models/nhanVienModel";
 import UserModel from "../Models/userModel";
 
 export default new (class jwtAuth {
@@ -34,10 +35,10 @@ export default new (class jwtAuth {
     const secretKey = "secretKey";
     // kiểm tra requset gửi lên
     let token = req.headers.authorization;
-
+    console.log(req.route.path);
     //kiểm tra xem có token hay không và trả về lỗi
     if (!token) {
-      return res.status(401).json({ message: "401 không có quyền truy cập" });
+      return res.status(500).json({ message: "chưa đăng nhập" });
     }
 
     token = token.split(" ")[1];
@@ -50,7 +51,6 @@ export default new (class jwtAuth {
       // lưu thông tin vào decoded
       console.log(decoded);
       req.decoded = decoded;
-
       next();
     });
   }
@@ -64,27 +64,37 @@ export default new (class jwtAuth {
     const secretKey = "secretKey";
     // lấy thông tin tài khoản mật khẩu người dùng
     const { username, password } = req.body;
-
+    console.log(req.route.path);
     //kiểm tra trên csdl có khớp không
-    //nếu không báo lỗi
     UserModel.findOne({ username, password }, (err, user) => {
       if (err || !user) {
-        return res.status(401).json({ error: "Thông tin đăng nhập không chính xác" });
+        return res.status(500).json({ error: "Thông tin đăng nhập không chính xác" });
       }
 
       // nếu khớp trả về token
       const payload = {
         userId: user._id,
         username: user.username,
+        role: user.role,
+        name: null,
+        path: req.route.path,
       };
 
-      // tạo token
-      const token = jwt.sign(payload, secretKey);
+      nhanVienModel.findOne({ username: req.body.username }, (err, nhanVien) => {
+        if (err || !nhanVien) {
+          return res.status(500).json({ error: "Thông tin đăng nhập không chính xác" });
+        }
+        let name = nhanVien.name;
+        payload.name = name;
+        console.log(name);
 
-      // trả về token
-      return res.json([{ token: token, username }]);
+        // tạo token
+        const token = jwt.sign(payload, secretKey);
+        console.log([{ token: token, payload }]);
+
+        // trả về token
+        return res.json({ token: token, userId: user._id, username: user.username, role: user.role, name: payload.name, path: payload.path });
+      });
     });
-
-    //FE nhận và lưu lại gửi kèm request
   }
 })();
