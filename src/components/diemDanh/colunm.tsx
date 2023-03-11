@@ -103,7 +103,7 @@ const columnsTableListPhien = [
     dataIndex: "active",
     key: "active",
     render: (value: boolean, record: any, index: any) => {
-      return <span key={index + value.toString()}>{value ? "Đang làm" : "Không làm"}</span>;
+      return <span key={index}>{value ? "Đang làm" : "Không làm"}</span>;
     }
   },
 ];

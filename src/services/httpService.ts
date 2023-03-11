@@ -1,6 +1,5 @@
 import { Modal } from "antd";
 import axios from "axios";
-import {  } from "react-router-dom";
 // const qs = require("qs");
 
 const http = axios.create({
@@ -9,7 +8,7 @@ const http = axios.create({
 });
 
 let login: any = localStorage.getItem("login");
-let token = JSON.parse(login)?.token;
+let token = JSON.parse(login).token;
 http.defaults.headers.common['Authorization'] = 'Bearer ' + token;
    http.interceptors.request.use(
   function(config) {

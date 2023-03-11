@@ -2,9 +2,10 @@ import Input from "antd/es/input/Input";
 import http from "./httpService";
 
 export interface IDangKiNghiPhepInput {
-  ngay: String;
-  gio: number;
-  lyDo: String;
+  ngayStart: String,
+  ngayEnd: String | null,
+  soNgay: Number,
+  lyDo: String,
 }
 
 class NghiPhepService {
@@ -12,11 +13,7 @@ class NghiPhepService {
     let result = await http.post("/nghiPhep/dangKiNghiPhep", input);
     return result.data;
   }
- 
-  public async getNgayPhepConLai() {
-    let result = await http.get("/nghiPhep/getNgayPhepConLai");
-    return result.data;
-  }
+
   public async getThongTinNghiPhepNV() {
     let result = await http.get("/nghiPhep/getThongTinNghiPhepNV");
     return result.data;
