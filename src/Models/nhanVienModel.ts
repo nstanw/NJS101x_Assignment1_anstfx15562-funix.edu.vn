@@ -7,6 +7,8 @@ const nhanVienSchema = new Schema({
     doB:   {type: Date , required: true},
     startDate:   {type: Date , required: true},
     department:   {type: String , required: true},
+    annualLeave:  {type: Number , required: true},
+    phepNam:  {type: Number , required: true},
     image: String,
 });
 

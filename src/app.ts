@@ -1,5 +1,6 @@
 import * as express from "express";
 import * as cors from "cors";
+const nghiPhepRouter = require("./routes/nghiPhepRouter");
 const phienLamViecRouter = require("./routes/phienLamViecRouter");
 const nhanVienRouter = require("./routes/nhanVienRouter");
 const authRouter = require("./routes/userRouter");
@@ -38,8 +39,10 @@ class App {
 
     // Router
     phienLamViecRouter(this.app);
+    phienLamViecRouter(this.app);
     nhanVienRouter(this.app);
     authRouter(this.app);
+    nghiPhepRouter(this.app);
   }
 }
 

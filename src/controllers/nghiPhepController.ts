@@ -22,75 +22,40 @@ export default new (class {
   }
 
   //POST đăng kí phép
-  /**
-   * thêm các lần đăng kí kèm giờ phép
-   * mỗi lần tạo 1 cái mới để phục vụ tính sau này
-   *
-   * @param req: ngày đăng kí, giờ
-   * @param res:  số ngày, giờ đăng kí phép
-   * @param next
-   * @returns
-   */
-  // async dangKiNghiPhep(req, res, next) {
-  //   try {
-  //     // kiểm tra số phép còn lại. nếu = 0 thì không cho đăng kí nữa
-  //     let phepConLai = await nhanVienModel.findOne({ username: req.decoded.username });
-  //     if (phepConLai.annualLeave <= 0) {
-  //       return res.json({ error: "Hết số phép của năm" });
-  //     }
 
-  //     // nếu đăng kí lớn hơn số phép còn lại báo lỗi
-  //     if (req.body.gio / 8 > phepConLai.annualLeave) {
-  //       return res.json({ error: "Số phép còn lại không đủ" });
-  //     }
+  async dangKiNghiPhep(req, res, next) {
+    try {
+      const username = req.decoded.username;
+      const { ngayStart, ngayEnd, soNgay, lyDo } = req.body;
+      /***
+       *username: ,
+        ngayStart: String,
+        ngayEnd: String,
+        soNgay: Number,
+        lyDo: String,
+      
+        // annualLeave = phepNam - songayphepdagngki
+      
+       */
 
-  //     // trường hợp nhân viên đăng kí nhiều ngày
-  //     let capNhatNgayPhepConLai;
-  //     let listNgay = req.body.ngay.split(',')
-  //     if (listNgay.length > 1) {
-  //       listNgay.forEach(element => {
-  //         // hợp lệ thì tiến hành đăng kí
-  //         const dangKiPhep = new nghiPhepModel({
-  //           username: req.decoded.username,
-  //           ngay: element,
-  //           gio: 8,
-  //           lyDo: req.body.lyDo,
-  //         });
+      //dang ki phep
+      const dangKiNghiPhep = { username: username, ngayStart, ngayEnd, soNgay, lyDo }
+      const newPhep = await new nghiPhepModel(dangKiNghiPhep).save;
 
-  //         // thêm đăng kí
-  //         async () => await dangKiPhep.save();
+      //tru vao phep nam
+      let nhanVien = await nhanVienModel.findOne({ username: username });
+      let annualLeave = nhanVien.phepNam - req.body.soNgay;
+      const updateNhanVien = await nhanVienModel.findOneAndUpdate({ username: username }, { annualLeave: annualLeave }, { returnDocument: "after" });
 
-  //         // cập nhật ngày phép còn lại
-  //         // trừ vào số phép còn lại và tạo document phép mới theo từng ngày để phục vụ tính giờ sau này
-  //         const annualLeave = phepConLai.annualLeave - 1;
-  //         capNhatNgayPhepConLai = async () => await nhanVienModel.findOneAndUpdate({ username: req.decoded.username }, { annualLeave: annualLeave }, { upsert: true });
-  //       });
-  //     }
-  //     // th đăng kí 1 ngày
-  //     else {
-  //       // hợp lệ thì tiến hành đăng kí
-  //       const dangKiPhep = new nghiPhepModel({
-  //         username: req.decoded.username,
-  //         ngay: req.body.ngay,
-  //         gio: req.body.gio,
-  //         lyDo: req.body.lyDo,
-  //       });
 
-  //       // thêm đăng kí
-  //       await dangKiPhep.save();
+      console.log("updateNhanVien", updateNhanVien);
+      console.log("newPhep", newPhep);
 
-  //       // cập nhật ngày phép còn lại
-  //       // trừ vào số phép còn lại và tạo document phép mới theo từng ngày để phục vụ tính giờ sau này
-  //       const annualLeave = phepConLai.annualLeave - req.body.gio / 8;
-  //       capNhatNgayPhepConLai = await nhanVienModel.findOneAndUpdate({ username: req.decoded.username }, { annualLeave: annualLeave }, { upsert: true });
+      return res.json(newPhep);
 
-  //       console.log(capNhatNgayPhepConLai);
-  //       return res.status(200).json(capNhatNgayPhepConLai);
-  //     }
-  //     console.log(capNhatNgayPhepConLai);
-  //     return res.status(200).json(capNhatNgayPhepConLai);
-  //   } catch (error) {
-  //     return res.status(400).json(error);
-  //   }
-  // }
+    } catch (error) {
+      return res.status(400).json(error);
+    }
+  }
+
 })();

@@ -73,7 +73,7 @@ export default new (class {
               if (input.active) {
                 if (ep === "neq") {
                   phien = phien.filter((p) => p.active !== input.active);
-                } else phien = phien.filter((p) => p.active === input.active);
+                } else phien = phien.filter((p) => p.active.toString() === input.active);
               }
               break;
 
@@ -110,10 +110,11 @@ export default new (class {
             console.log(err);
           } else {
             console.log(result);
-            if (input.ngay) {
-              const ngay = moment(input.ngay).format("DD/MM/YYYY");
+            const ngay = moment(input.ngay).format("DD/MM/YYYY");
+            const checkToday : number = result.filter((t) => t._id === ngay).length
+            if (input.ngay !== null && checkToday > 0 ) {
               totalTime = result.filter((t) => t._id === ngay)[0].totalValue;
-              const viewGetAll = [...phien, { totalTime: totalTime }];
+              const viewGetAll = [...phien, { totalTime: totalTime }];              
               return res.json(viewGetAll);
             }
             const viewGetAll = [...phien, { totalTime: result }];
