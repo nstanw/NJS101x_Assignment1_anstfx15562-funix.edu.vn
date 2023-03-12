@@ -5,6 +5,9 @@ const phienLamViecRouter = require("./routes/phienLamViecRouter");
 const nhanVienRouter = require("./routes/nhanVienRouter");
 const authRouter = require("./routes/userRouter");
 const mongoose = require("mongoose");
+import * as morgan from "morgan";
+import * as path from "path";
+import * as multer from "multer";
 
 class App {
   public app: express.Application;
@@ -37,6 +40,43 @@ class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded());
 
+    //logger
+    this.app.use(morgan("dev"));
+
+    //setstatic path
+    this.app.use("/Resource/images", express.static(path.join(__dirname, "../Resource/images")));
+    console.log(path.join(__dirname, "../Resource"));
+
+    //upload image
+    const storage = multer.diskStorage({
+      destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, "../Resource/images"));
+      },
+      filename: (req, file, cb) => {
+        const fileImgName = Date.now().toString() + "-" + file.originalname;
+        cb(null, fileImgName);
+      },
+    });
+
+    const fileFilter = (req, file, cb) => {
+      if (file.mimetype === "image/png" || file.mimetype === "image/jpg" || file.mimetype === "image/jpeg") {
+        cb(null, true);
+      } else {
+        cb(null, false);
+      }
+    };
+
+    this.app.use(multer({ storage: storage, fileFilter: fileFilter }).single("file"));
+
+    this.app.post("/upload", (req: any, res) => {
+      console.log("/upload", req.file);
+
+      if (!req.file) {
+        return res.json({ success: false });
+      }
+      return res.json({ path: req.file.path });
+    });
+    
     // Router
     phienLamViecRouter(this.app);
     phienLamViecRouter(this.app);

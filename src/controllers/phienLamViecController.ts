@@ -4,25 +4,6 @@ import { getHouseBetweenTwoDate } from "../util/getHouseBetweenTwoDate";
 import nghiPhepModel from "../Models/nghiPhepModel";
 import moment = require("moment");
 
-//- get phiên làm việc trong ngày
-// get danh sách các phiên
-
-//- nếu là phiên cuối hiện tổng số giờ theo ngày
-//- nếu toàn bộ đều active = false thì sẽ tính tổng thời gian
-
-//hiển thị lương
-/**
- * salaryScale
- * ovserTime
- * số giờ thiếu
- * lương
- */
-
-// thông tin quản lý
-// id
-// tên
-
-// phân trang
 interface IPhienLamViec {
   name: String | null;
   noiLam: String | null;
@@ -117,8 +98,7 @@ export default new (class {
               const viewGetAll = [...phien, { totalTime: totalTime }];              
               return res.json(viewGetAll);
             }
-            const viewGetAll = [...phien, { totalTime: result }];
-            return res.json(viewGetAll);
+            return res.json(null);
           }
         }
       );
