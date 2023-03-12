@@ -24,7 +24,6 @@ const DiemDanh: React.FC = () => {
 
   useEffect(() => {
     AuthenticationStore.isLogin();
-    console.log(AuthenticationStore);
   }, []);
 
   useEffect(() => {
@@ -33,7 +32,6 @@ const DiemDanh: React.FC = () => {
       let getAll: any[] = await phienLamViecService.getAll({
         ngay: new Date(Date.now()),
       });
-      console.log(getAll);
       if (getAll) {
         let phienAvtive = getAll.filter((p) => p.active === true)[0];
         let listPhienEnd = getAll.filter((p) => p.active === false);
@@ -45,17 +43,17 @@ const DiemDanh: React.FC = () => {
         if (phienAvtive) {
           setIsActive(phienAvtive.active);
         }
+        setIsLoading(false);
       } else {
         setTotalTime(0);
         setListEndPhiens([]);
+        setIsLoading(false);
       }
 
-      setIsLoading(false);
     })();
   }, [isActive, form]);
 
   const onFinish = async (values: any) => {
-    console.log(values);
     if (values) {
       try {
         setIsLoading(true);
@@ -67,10 +65,6 @@ const DiemDanh: React.FC = () => {
         console.log('Failed:', error);
       }
     }
-  };
-
-  const handleChange = (value: string) => {
-    console.log(`selected ${value}`);
   };
 
   return (
@@ -133,7 +127,6 @@ const DiemDanh: React.FC = () => {
                       rules={[{ required: true }]}
                     >
                       <Select
-                        onChange={handleChange}
                         allowClear
                         style={{ width: 200 }}
                       >
