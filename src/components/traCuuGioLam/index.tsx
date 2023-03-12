@@ -4,6 +4,8 @@ import phienLamViecService from "../../services/phienLamViecService";
 import Search from "./search";
 import { useNavigate } from "react-router-dom";
 import QuanLy from "./quanLy";
+import { tableColumnTextFilterConfig } from "../../helpers/tableColumnTextFilterConfig";
+import moment from "moment";
 
 const layout = {
   labelCol: { span: 8 },
@@ -31,7 +33,7 @@ const TraCuuGioLam = () => {
   const [pageSize, setPageSize] = useState(10); // số dòng trên mỗi trang
 
   const [listTraCuuState, setListTraCuuState] = React.useState<any[]>();
-  const [infoQuanLy, setInfoQuanLy] = React.useState<any>();
+  // const [infoQuanLy, setInfoQuanLy] = React.useState<any>();
   const [chiTietLuong, setChiTietLuong] = React.useState<any>();
   const [showLuong, setShowLuong] = React.useState(false);
   const [listFilter, setListFilter] = React.useState<any>(listTraCuuState);
@@ -39,19 +41,15 @@ const TraCuuGioLam = () => {
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-    }
+    // const token = localStorage.getItem("token");
+    // if (!token) {
+    //   navigate("/login");
+    // }
 
     (async function run() {
       try {
-        let gioLamTheoNgay = await phienLamViecService.traCuuThongTinGioLamNhanVienTheoNgay();
+        let gioLamTheoNgay = await phienLamViecService.traCuuThongTinGioLamCongTy();
         setListTraCuuState(gioLamTheoNgay);
-
-        let infoQuanLy = await phienLamViecService.getInfoQuanLy();
-        setInfoQuanLy(infoQuanLy);
-        //#endregion
       } catch (error) {
         console.log("Failed:", error);
       }
@@ -61,52 +59,99 @@ const TraCuuGioLam = () => {
   const columnsTableListPhien = [
     {
       title: "Ngày",
-      dataIndex: "ngay",
-      key: "ngay",
-      render: (ngay: Date) => {
-        return <span>{new Date(ngay).toLocaleDateString()}</span>;
+      dataIndex: "_id",
+      key: "_id",
+      render: (_id: any) => {
+        return <span>{_id}</span>;
       },
-    },
-    {
-      title: "Tên nhân viên",
-      dataIndex: "name",
-      key: "name",
+      ...tableColumnTextFilterConfig(),
+      onFilter: (value: any, record: any) => {
+        return (record._id).toString().toLowerCase().includes(value.toString().toLowerCase());
+      },
+      sorter: (a: any, b: any) => {
+        return new Date(a._id).getTime() - new Date(b._id).getTime();
+      },
+      ellipsis: true,
+      
     },
     {
       title: "Nơi làm việc",
-      dataIndex: "noiLam",
       key: "noiLam",
-    },
-    {
-      title: "Thời gian bắt đầu",
-      dataIndex: "batDau",
-      key: "batDau",
-      render: (batDau: Date) => {
-        return <span>{new Date(batDau).toLocaleTimeString()}</span>;
+      render: () => {
+        return <span>Công Ty</span>;
       },
     },
     {
+      title: "Thời gian bắt đầu",
+      dataIndex: "startTime",
+      key: "startTime",
+      render: (startTime: Date) => {
+        return <span>{new Date(startTime).toLocaleTimeString()}</span>;
+      },
+      ...tableColumnTextFilterConfig(),
+      onFilter: (value: any, record: any) => {
+        return moment(record.startTime).toString().toLowerCase().includes(value.toString().toLowerCase());
+      },
+      sorter: (a: any, b: any) => {
+        return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+      },
+      ellipsis: true,
+    },
+    {
       title: "Thời gian kết thúc",
-      dataIndex: "ketThuc",
-      key: "ketThuc",
-      render: (ketThuc: Date) => {
-        return <span>{ketThuc ? new Date(ketThuc).toLocaleTimeString() : "--"}</span>;
+      dataIndex: "endTime",
+      key: "endTime",
+      render: (endTime: Date) => {
+        return <span>{endTime !== null ? new Date(endTime).toLocaleTimeString() : "--"}</span>;
+      },
+      ...tableColumnTextFilterConfig(),
+      onFilter: (value: any, record: any) => {
+        return moment(record.endTime).toString().toLowerCase().includes(value.toString().toLowerCase());
+      },
+      sorter: (a: any, b: any) => {
+        return new Date(a.endTime).getTime() - new Date(b.endTime).getTime();
+      },
+      ellipsis: true,
+    },
+    {
+      title: "Giờ đăng kí nghỉ phép",
+      dataIndex: "ngayPhep",
+      key: "ngayPhep",
+      sorter: (a: any, b: any) => {
+        return a.ngayPhep - b.ngayPhep;
       },
     },
     {
       title: "Thời gian làm việc",
-      dataIndex: "thoiGianLam",
-      key: "thoiGianLam",
+      dataIndex: "tongThoiGian",
+      key: "tongThoiGian",
+      sorter: (a: any, b: any) => {
+        return a.tongThoiGian - b.tongThoiGian;
+      },
     },
     {
       title: "Thêm giờ",
-      dataIndex: "lamThem",
-      key: "lamThem",
+      dataIndex: "overTime",
+      key: "overTime",
+      sorter: (a: any, b: any) => {
+        return a.overTime - b.overTime;
+      },
     },
     {
-      title: "Giờ đăng kí nghỉ phép",
-      dataIndex: "soGioDangKiPhep",
-      key: "soGioDangKiPhep",
+      title: "Thiếu giờ",
+      dataIndex: "lamThieu",
+      key: "lamThieu",
+      sorter: (a: any, b: any) => {
+        return a.lamThieu - b.lamThieu;
+      },
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "active",
+      key: "active",
+      render: (active: Boolean) => {
+        return <span>{active ? "Đang làm" : "Không làm"}</span>;
+      },
     },
   ];
 
@@ -172,22 +217,12 @@ const TraCuuGioLam = () => {
       />
       <Form>
         <Row gutter={24}>
-          <Col key="q" span={12}></Col>
-          <Col key="idQuanLy" span={12}>
-            <Form.Item label="ID quản lý">
-              <span>{infoQuanLy ? infoQuanLy.id : ""}</span>
-            </Form.Item>
+          <Col key="idQuanLy" span={24}>
+            <Form.Item label="ID quản lý">{listTraCuuState ? listTraCuuState[0].idQuanLy : ""}</Form.Item>
           </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col key="q" span={12}>
-            {/* <Form.Item label="Tìm kiếm" name="q">
-            <Input placeholder="Tìm kiếm" />
-          </Form.Item> */}
-          </Col>
-          <Col key="nameQuanLy" span={12}>
+          <Col key="nameQuanLy" span={24}>
             <Form.Item label="Tên quản lý">
-              <span>{infoQuanLy ? infoQuanLy.name : ""}</span>
+              <span>{listTraCuuState ? listTraCuuState[0].nameQuanLy : ""}</span>
             </Form.Item>
           </Col>
         </Row>
@@ -195,22 +230,7 @@ const TraCuuGioLam = () => {
       {!isFilter ? (
         <>
           <Form {...layout} name="control-hooks">
-            <h2>Danh sách giờ đã làm</h2>
-            <Table
-              pagination={pagination}
-              dataSource={listTraCuuState ? listTraCuuState.map((d: any, index: any) => ({ ...d, key: index })) : []}
-              columns={[
-                ...columnsTableListPhien,
-                {
-                  title: "Trạng thái",
-                  dataIndex: "active",
-                  key: "active",
-                  render: (value: boolean, record: any, index) => {
-                    return <span key={value.toString() + index.toString()}>{value ? "Đang làm" : "Không làm"}</span>;
-                  },
-                },
-              ]}
-            />
+            <Table pagination={pagination} dataSource={listTraCuuState ? listTraCuuState.map((d: any, index: any) => ({ ...d, key: index })) : []} columns={columnsTableListPhien} />
           </Form>
           {/* <Pagination style={{ marginTop: 10 }} {...pagination} /> */}
         </>

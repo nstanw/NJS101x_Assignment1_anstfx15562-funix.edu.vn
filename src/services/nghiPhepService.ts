@@ -2,8 +2,8 @@ import Input from "antd/es/input/Input";
 import http from "./httpService";
 
 export interface IDangKiNghiPhepInput {
-  ngayStart: String,
-  ngayEnd: String | null,
+  ngayStart: Date,
+  ngayEnd: Date | null,
   soNgay: Number,
   lyDo: String,
 }

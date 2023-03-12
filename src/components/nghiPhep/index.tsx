@@ -2,6 +2,7 @@ import React from "react";
 import { Button, DatePicker, Form, Input, InputNumber, message, Switch } from "antd";
 import nghiPhepService, { IDangKiNghiPhepInput } from "../../services/nghiPhepService";
 import { useNavigate } from "react-router-dom";
+import form from "antd/es/form";
 
 const { RangePicker } = DatePicker;
 
@@ -21,7 +22,7 @@ const NghiPhep: React.FC = () => {
         message.error("Bạn đã đăng kí hết số phép trong năm!")
       }
     })();
-  }, [soNgayPhepConLai, soNgayPhepDangKi, isChange]);
+  }, [soNgayPhepConLai, soNgayPhepDangKi, isChange, form]);
 
   const onFinish = async (fieldsValue: any) => {
     console.log("fieldsValue", fieldsValue);
@@ -30,8 +31,8 @@ const NghiPhep: React.FC = () => {
       const rangeValue = fieldsValue["range-picker"];
       if (nghiNhieuNgay) {
         const values = {
-          ngayStart: rangeValue[0],
-          ngayEnd: rangeValue[1],
+          ngayStart: new Date(rangeValue[0]),
+          ngayEnd: new Date(rangeValue[1]),
           soNgay: Math.abs(new Date(rangeValue[0].format("YYYY-MM-DD")).getDate() - new Date(rangeValue[1].format("YYYY-MM-DD")).getDate()) + 1,
           lyDo: fieldsValue.lyDo,
         };
@@ -45,10 +46,10 @@ const NghiPhep: React.FC = () => {
           }
         }
         setSoNgayPhepDangKi(values.soNgay);
+        console.log(values);
         await nghiPhepService.dangKiNghiPhep(values);
         message.success("Đăng kí phép thành công");
         setIsChange(!isChange);
-
         return;
       }
       console.log(fieldsValue);

@@ -45,7 +45,7 @@ const App: React.FC = () => {
       key: "editThongTinCaNhan",
     },
     {
-      label: <Link to="/traCuuThongTinGioLam">Tra cứu thông tin giờ làm</Link>,
+      label: <Link to="/traCuuThongTinGioLam">Tra cứu giờ làm/ lương</Link>,
       key: "traCuuThongTinGioLam",
     },
     {

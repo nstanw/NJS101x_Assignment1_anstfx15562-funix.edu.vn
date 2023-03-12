@@ -2,15 +2,15 @@ import { InputGetAllDto } from "../Dtos/InputGetAllDto";
 import http from "./httpService";
 
 class PhienLamViecService {
-  public async getAll(input : InputGetAllDto) {
-    let result = await http.get("/phienLamViec/getAll", { params: input } );
+  public async getAll(input: InputGetAllDto) {
+    let result = await http.get("/phienLamViec/getAll", { params: input });
     return result.data;
   }
   public async phienHienTai() {
     let result = await http.get("/phienLamViec/phienHienTai");
     return result.data;
   }
- 
+
   public async getPhienDangLam() {
     let result = await http.get("/phienLamViec/getPhienDangLam");
     return result.data;
