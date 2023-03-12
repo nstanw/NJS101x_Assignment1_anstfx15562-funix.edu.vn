@@ -8,7 +8,9 @@ const nhanVienSchema = new Schema({
     startDate:   {type: Date , required: true},
     department:   {type: String , required: true},
     annualLeave:  {type: Number , required: true},
+    salaryScale:  {type: Number , required: true},
     phepNam:  {type: Number , required: true},
+    idQuanLy: {type: String , required: true},
     image: String,
 });
 
