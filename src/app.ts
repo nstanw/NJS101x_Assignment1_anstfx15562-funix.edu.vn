@@ -19,8 +19,7 @@ class App {
     main().catch((err) => console.log(err));
 
     async function main() {
-      const URI =
-        "mongodb+srv://accban123:accban123@finixcluster0.cxck4bg.mongodb.net/asm1Nodejs?retryWrites=true&w=majority";
+      const URI ="mongodb+srv://anhnst:accban123@study.fkb6869.mongodb.net/?retryWrites=true&w=majority";
       await mongoose.connect(URI);
       console.log("connection to database successfully");
     }
